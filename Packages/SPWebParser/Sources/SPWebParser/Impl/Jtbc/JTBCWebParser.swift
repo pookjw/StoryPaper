@@ -1,6 +1,5 @@
 import Foundation
 import SPError
-import SPLogger
 import SwiftSoup
 
 public actor JtbcWebParser {
@@ -65,7 +64,7 @@ extension JtbcWebParser: SPWebParser {
                         let documentURLString: String = try? dlAElement.attr("href"),
                         let documentURL: URL = .init(string: documentURLString)
                     else {
-                        log.warning("Unexpected parsing behavior.")
+                        logUnexpectedParsingBehavior()
                         return nil
                     }
                     
@@ -73,7 +72,7 @@ extension JtbcWebParser: SPWebParser {
                     if let thumbnailImageURLString: String = try? ddImgElement.attr("src") {
                         thumbnailImageURL = .init(string: thumbnailImageURLString)
                     } else {
-                        log.warning("Unexpected parsing behavior.")
+                        logUnexpectedParsingBehavior()
                         thumbnailImageURL = nil
                     }
                     
@@ -98,10 +97,10 @@ extension JtbcWebParser: SPWebParser {
                     )
                 )
             } else {
-                log.warning("Unexpected parsing behavior.")
+                logUnexpectedParsingBehavior()
             }
         } else {
-            log.warning("Unexpected parsing behavior.")
+            logUnexpectedParsingBehavior()
         }
         
         //
@@ -120,7 +119,7 @@ extension JtbcWebParser: SPWebParser {
             {
                 sectionTitle = spanElement.ownText()
             } else {
-                log.warning("Unexpected parsing behavior.")
+                logUnexpectedParsingBehavior()
                 sectionTitle = nil
             }
             
@@ -145,7 +144,7 @@ extension JtbcWebParser: SPWebParser {
                                 .attr("href"),
                             let documentURL: URL = .init(string: documentURLString)
                         else {
-                            log.warning("Unexpected parsing behavior.")
+                            logUnexpectedParsingBehavior()
                             return
                         }
                         
@@ -155,7 +154,7 @@ extension JtbcWebParser: SPWebParser {
                         if let thumbnailImageURLString: String = try? imgElement.attr("src") {
                             thumbnailImageURL = .init(string: thumbnailImageURLString)
                         } else {
-                            log.warning("Unexpected parsing behavior.")
+                            logUnexpectedParsingBehavior()
                             thumbnailImageURL = nil
                         }
                         
@@ -171,7 +170,7 @@ extension JtbcWebParser: SPWebParser {
                         )
                     }
             } else {
-                log.warning("Unexpected parsing behavior.")
+                logUnexpectedParsingBehavior()
             }
             
             if let normalElements: Elements = try? conTodayNewsElement.getElementsByClass("normal") {
@@ -185,7 +184,7 @@ extension JtbcWebParser: SPWebParser {
                                 .attr("href"),
                             let documentURL: URL = .init(string: documentURLString)
                         else {
-                            log.warning("Unexpected parsing behavior.")
+                            logUnexpectedParsingBehavior()
                             return
                         }
                         
@@ -203,7 +202,7 @@ extension JtbcWebParser: SPWebParser {
                         )
                     }
             } else {
-                log.warning("Unexpected parsing behavior.")
+                logUnexpectedParsingBehavior()
             }
             
             if !todayNewsItems.isEmpty {
@@ -215,10 +214,10 @@ extension JtbcWebParser: SPWebParser {
                     )
                 )
             } else {
-                log.warning("Unexpected parsing behavior.")
+                logUnexpectedParsingBehavior()
             }
         } else {
-            log.warning("Unexpected parsing behavior.")
+            logUnexpectedParsingBehavior()
         }
         
         //
@@ -236,7 +235,7 @@ extension JtbcWebParser: SPWebParser {
                             .first() {
                             title = strongElement.ownText()
                         } else {
-                            log.warning("Unexpected parsing behavior.")
+                            logUnexpectedParsingBehavior()
                             title = nil
                         }
                         
@@ -245,11 +244,11 @@ extension JtbcWebParser: SPWebParser {
                             .first() {
                             badgeText = spanElement.ownText()
                         } else {
-                            log.warning("Unexpected parsing behavior.")
+                            logUnexpectedParsingBehavior()
                             badgeText = nil
                         }
                     } else {
-                        log.warning("Unexpected parsing behavior.")
+                        logUnexpectedParsingBehavior()
                         title = nil
                         badgeText = nil
                     }
@@ -263,7 +262,7 @@ extension JtbcWebParser: SPWebParser {
                         imgElements
                             .forEach { element in
                                 guard let aElements: Elements = try? element.getElementsByTag("a") else {
-                                    log.warning("Unexpected parsing behavior.")
+                                    logUnexpectedParsingBehavior()
                                     return
                                 }
                                 
@@ -273,7 +272,7 @@ extension JtbcWebParser: SPWebParser {
                                             let documentURLString: String = try? element.attr("href"),
                                             let documentURL: URL = .init(string: documentURLString)
                                         else {
-                                            log.warning("Unexpected parsing behavior.")
+                                            logUnexpectedParsingBehavior()
                                             return
                                         }
                                         
@@ -285,7 +284,7 @@ extension JtbcWebParser: SPWebParser {
                                                 .getElementsByTag("strong")
                                                 .first()
                                         else {
-                                            log.warning("Unexpected parsing behavior.")
+                                            logUnexpectedParsingBehavior()
                                             return
                                         }
                                         
@@ -293,7 +292,7 @@ extension JtbcWebParser: SPWebParser {
                                         if let thumbnailImageURLString: String = try? imgElement.attr("src") {
                                             thumbnailImageURL = .init(string: thumbnailImageURLString)
                                         } else {
-                                            log.warning("Unexpected parsing behavior.")
+                                            logUnexpectedParsingBehavior()
                                             thumbnailImageURL = nil
                                         }
                                         
@@ -315,7 +314,7 @@ extension JtbcWebParser: SPWebParser {
                         txtListElements
                             .forEach { element in
                                 guard let liElements: Elements = try? element.getElementsByTag("li") else {
-                                    log.warning("Unexpected parsing behavior.")
+                                    logUnexpectedParsingBehavior()
                                     return
                                 }
                                 
@@ -329,7 +328,7 @@ extension JtbcWebParser: SPWebParser {
                                                 .attr("href"),
                                             let documentURL: URL = .init(string: documentURLString)
                                         else {
-                                            log.warning("Unexpected parsing behavior.")
+                                            logUnexpectedParsingBehavior()
                                             return
                                         }
                                         
@@ -353,14 +352,14 @@ extension JtbcWebParser: SPWebParser {
                         timelineListInElements
                             .forEach { element in
                                 guard let ddElements: Elements = try? element.getElementsByTag("dd") else {
-                                    log.warning("Unexpected parsing behavior.")
+                                    logUnexpectedParsingBehavior()
                                     return
                                 }
                                 
                                 ddElements
                                     .forEach { element in
                                         guard let aElement: Elements = try? element.getElementsByTag("a") else {
-                                            log.warning("Unexpected parsing behavior.")
+                                            logUnexpectedParsingBehavior()
                                             return
                                         }
                                         
@@ -373,7 +372,7 @@ extension JtbcWebParser: SPWebParser {
                                                         .getElementsByTag("strong")
                                                         .first()
                                                 else {
-                                                    log.warning("Unexpected parsing behavior.")
+                                                    logUnexpectedParsingBehavior()
                                                     return
                                                 }
                                                 
@@ -407,7 +406,7 @@ extension JtbcWebParser: SPWebParser {
                     //
                     
                     guard !items.isEmpty else {
-                        log.warning("Unexpected parsing behavior.")
+                        logUnexpectedParsingBehavior()
                         return nil
                     }
                     
@@ -422,7 +421,7 @@ extension JtbcWebParser: SPWebParser {
             
             results.append(contentsOf: moduleFeedNewsSections)
         } else {
-            log.warning("Unexpected parsing behavior.")
+            logUnexpectedParsingBehavior()
         }
         
         //
@@ -445,6 +444,7 @@ extension JtbcWebParser: SPWebParser {
         if let date: Date {
             let dateFormatter: DateFormatter = .init()
             dateFormatter.dateFormat = "yyyyMMdd"
+            dateFormatter.locale = .init(identifier: "ko_KR")
             let pdate: String = dateFormatter.string(from: date)
             let pdateQueryItem: URLQueryItem = .init(name: "pdate", value: pdate)
             queryItems.append(pdateQueryItem)
@@ -470,7 +470,7 @@ extension JtbcWebParser: SPWebParser {
             .first() {
             sectionTitle = dOnEndChild.ownText()
         } else {
-            log.warning("Unexpected parsing behavior.")
+            logUnexpectedParsingBehavior()
             sectionTitle = nil
         }
         
@@ -494,7 +494,7 @@ extension JtbcWebParser: SPWebParser {
                         .first(),
                     let href: String = try? titleCrElement.attr("href")
                 else {
-                    log.warning("Unexpected parsing behavior.")
+                    logUnexpectedParsingBehavior()
                     return nil
                 }
                 
@@ -506,7 +506,7 @@ extension JtbcWebParser: SPWebParser {
                 documentURLComponents.path = href
                 
                 guard let documentURL: URL = documentURLComponents.url else {
-                    log.warning("Unexpected parsing behavior.")
+                    logUnexpectedParsingBehavior()
                     return nil
                 }
                 
@@ -524,7 +524,7 @@ extension JtbcWebParser: SPWebParser {
                 {
                     thumbnailImageURL = .init(string: src)
                 } else {
-                    log.warning("Unexpected parsing behavior.")
+                    logUnexpectedParsingBehavior()
                     thumbnailImageURL = nil
                 }
                 
@@ -541,7 +541,7 @@ extension JtbcWebParser: SPWebParser {
                 {
                     description = aElement.ownText()
                 } else {
-                    log.warning("Unexpected parsing behavior.")
+                    logUnexpectedParsingBehavior()
                     description = nil
                 }
                 
@@ -562,7 +562,7 @@ extension JtbcWebParser: SPWebParser {
                         
                         date = dateFormatter.date(from: dateString)
                     } else {
-                        log.warning("Unexpected parsing behavior.")
+                        logUnexpectedParsingBehavior()
                         date = nil
                     }
                     
@@ -571,11 +571,11 @@ extension JtbcWebParser: SPWebParser {
                         .first() {
                         reporterName = writerClass.ownText()
                     } else {
-                        log.warning("Unexpected parsing behavior.")
+                        logUnexpectedParsingBehavior()
                         reporterName = nil
                     }
                 } else {
-                    log.warning("Unexpected parsing behavior.")
+                    logUnexpectedParsingBehavior()
                     date = nil
                     reporterName = nil
                 }
@@ -603,11 +603,11 @@ extension JtbcWebParser: SPWebParser {
             {
                 currentPage = number
             } else {
-                log.warning("Unexpected parsing behavior.")
+                // When a page has single page, this will occur.
                 currentPage = page ?? 1
             }
         } else {
-            log.warning("Unexpected parsing behavior.")
+            logUnexpectedParsingBehavior()
             currentPage = page ?? 1
             hasMorePage = false
         }
@@ -620,7 +620,310 @@ extension JtbcWebParser: SPWebParser {
     }
     
     private func newsSectionsForIndexParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
-        fatalError()
+        let document: Document = try await document(for: newsCategory.baseURLComponents)
+        var sections: [JtbcNewsSection] = []
+        
+        //
+        
+        if let headlineElement: Element = try? document.getElementById("CPContent_section_headline") {
+            let sectionTitle: String?
+            if let h3Element: Element = try? headlineElement
+                .getElementsByTag("h3")
+                .first() {
+                sectionTitle = h3Element.ownText()
+            } else {
+                logUnexpectedParsingBehavior()
+                sectionTitle = nil
+            }
+            
+            var items: [JtbcNewsItem] = []
+            let handleNewsAreaElements: (Elements) -> Void = { elements in
+                elements
+                    .forEach { element in
+                        guard
+                            let dtElement: Element = try? element
+                            .getElementsByTag("dt")
+                            .first(),
+                            let dtAElement: Element = try? dtElement
+                                .getElementsByTag("a")
+                                .first(),
+                            let href: String = try? dtAElement.attr("href")
+                        else {
+                            self.logUnexpectedParsingBehavior()
+                            return
+                        }
+                        
+                        var urlComponents: URLComponents = .init()
+                        
+                        urlComponents.scheme = "https"
+                        urlComponents.host = "news.jtbc.co.kr"
+                        urlComponents.path = href
+                        
+                        guard let documentURL: URL = urlComponents.url else {
+                            self.logUnexpectedParsingBehavior()
+                            return
+                        }
+                        
+                        let title: String = dtAElement.ownText()
+                        
+                        //
+                        
+                        let thumbnailImageURL: URL?
+                        if
+                            let photoElement: Element = try? element
+                                .getElementsByClass("photo")
+                                .first(),
+                            let imgElement: Element = try? photoElement
+                                .getElementsByTag("img")
+                                .first(),
+                            let src: String = try? imgElement.attr("src")
+                        {
+                            thumbnailImageURL = .init(string: src)
+                        } else {
+                            self.logUnexpectedParsingBehavior()
+                            thumbnailImageURL = nil
+                        }
+                        
+                        //
+                        
+                        let description: String?
+                        if
+                            let descElement: Element = try? element
+                                .getElementsByClass("desc")
+                                .first(),
+                            let descAElement: Element = try? descElement
+                                .getElementsByTag("a")
+                                .first()
+                        {
+                            description = descAElement.ownText()
+                        } else {
+                            self.logUnexpectedParsingBehavior()
+                            description = nil
+                        }
+                        
+                        //
+                        
+                        let reporterName: String?
+                        let date: Date?
+                        if let writerElement: Element = try? element
+                                .getElementsByClass("writer")
+                                .first() {
+                            reporterName = writerElement.ownText()
+                            
+                            if let dateElement: Element = try? writerElement
+                                .getElementsByClass("date")
+                                .first() {
+                                let dateFormatter: DateFormatter = .init()
+                                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                                dateFormatter.locale = .init(identifier: "ko_KR")
+                                
+                                let dateString: String = dateElement.ownText()
+                                if let _date: Date = dateFormatter.date(from: dateString) {
+                                    date = _date
+                                } else {
+                                    self.logUnexpectedParsingBehavior()
+                                    date = nil
+                                }
+                            } else {
+                                self.logUnexpectedParsingBehavior()
+                                date = nil
+                            }
+                        } else {
+                            self.logUnexpectedParsingBehavior()
+                            reporterName = nil
+                            date = nil
+                        }
+                            
+                        
+                        items.append(
+                            .init(
+                                title: title,
+                                description: description,
+                                thumbnailImageURL: thumbnailImageURL,
+                                documentURL: documentURL,
+                                date: date,
+                                reporterName: reporterName
+                            )
+                        )
+                    }
+            }
+            
+            //
+            
+            if let newsAreaOnElements: Elements = try? headlineElement.getElementsByClass("news_area on") {
+                handleNewsAreaElements(newsAreaOnElements)
+            }
+            
+            if let newsAreaElements: Elements = try? headlineElement.getElementsByClass("news_area ") {
+                handleNewsAreaElements(newsAreaElements)
+            }
+            
+            //
+            
+            if !items.isEmpty {
+                sections.append(.init(title: sectionTitle, badgeText: nil, newsItems: items))
+            } else {
+                logUnexpectedParsingBehavior()
+            }
+        } else {
+            logUnexpectedParsingBehavior()
+        }
+        
+        //
+        
+        if let mainListElements: Elements = try? document.getElementsByClass("major_news section section_main_list news_list") {
+            mainListElements
+                .forEach { element in
+                    let sectionTitle: String?
+                    if
+                        let sectionTitleElement: Element = try? element
+                        .getElementsByClass("section_title")
+                        .first(),
+                        let emElement: Element = try? sectionTitleElement
+                            .getElementsByTag("em")
+                            .first()
+                    {
+                        sectionTitle = "\(emElement.ownText())\(sectionTitleElement.ownText())"
+                    } else {
+                        logUnexpectedParsingBehavior()
+                        sectionTitle = nil
+                    }
+                    
+                    //
+                    
+                    guard let sectionListElement: Element = try? element
+                        .getElementById("section_list") else {
+                        logUnexpectedParsingBehavior()
+                        return
+                    }
+                    
+                    guard let liElements: Elements = try? sectionListElement
+                        .getElementsByTag("li") else {
+                        logUnexpectedParsingBehavior()
+                        return
+                    }
+                    
+                    let items: [JtbcNewsItem] = liElements
+                        .compactMap { element -> JtbcNewsItem? in
+                            guard
+                                let titleElement: Element = try? element
+                                    .getElementsByClass("title_cr")
+                                    .first(),
+                                let titleAElement: Element = try? titleElement
+                                    .getElementsByTag("a")
+                                    .first(),
+                                let href: String = try? titleAElement.attr("href")
+                            else {
+                                logUnexpectedParsingBehavior()
+                                return nil
+                            }
+                            
+                            var urlComponents: URLComponents = .init()
+                            
+                            urlComponents.scheme = "https"
+                            urlComponents.host = "news.jtbc.co.kr"
+                            urlComponents.path = href
+                            
+                            guard let documentURL: URL = .init(string: href) else {
+                                logUnexpectedParsingBehavior()
+                                return nil
+                            }
+                            
+                            let title: String = titleAElement.ownText()
+                            
+                            //
+                            
+                            let thumbnailImageURL: URL?
+                            if
+                                let photoElement: Element = try? element
+                                    .getElementsByClass("photo")
+                                    .first(),
+                                let imgElement: Element = try? photoElement
+                                    .getElementsByTag("img")
+                                    .first(),
+                                let src: String = try? imgElement.attr("src")
+                            {
+                                thumbnailImageURL = .init(string: src)
+                            } else {
+                                self.logUnexpectedParsingBehavior()
+                                thumbnailImageURL = nil
+                            }
+                            
+                            //
+                            
+                            let description: String?
+                            if
+                                let descElement: Element = try? element
+                                    .getElementsByClass("desc")
+                                    .first(),
+                                let descAElement: Element = try? descElement
+                                    .getElementsByTag("a")
+                                    .first()
+                            {
+                                description = descAElement.ownText()
+                            } else {
+                                self.logUnexpectedParsingBehavior()
+                                description = nil
+                            }
+                            
+                            //
+                            
+                            let date: Date?
+                            if let dateElement: Element = try? element
+                                .getElementsByClass("date")
+                                .first() {
+                                let dateFormatter: DateFormatter = .init()
+                                dateFormatter.dateFormat = "yyyy-MM-dd a h:mm:ss"
+                                dateFormatter.locale = .init(identifier: "ko_KR")
+                                
+                                let dateString: String = dateElement.ownText()
+                                if let _date: Date = dateFormatter.date(from: dateString) {
+                                    date = _date
+                                } else {
+                                    self.logUnexpectedParsingBehavior()
+                                    date = nil
+                                }
+                            } else {
+                                self.logUnexpectedParsingBehavior()
+                                date = nil
+                            }
+                            
+                            //
+                            
+                            let reporterName: String?
+                            if let writerElement: Element = try? element
+                                    .getElementsByClass("writer")
+                                    .first() {
+                                reporterName = writerElement.ownText()
+                            } else {
+                                self.logUnexpectedParsingBehavior()
+                                reporterName = nil
+                            }
+                                
+                            
+                            return .init(
+                                title: title,
+                                description: description,
+                                thumbnailImageURL: thumbnailImageURL,
+                                documentURL: documentURL,
+                                date: date,
+                                reporterName: reporterName
+                            )
+                        }
+                    
+                    if !items.isEmpty {
+                        sections.append(.init(title: sectionTitle, badgeText: nil, newsItems: items))
+                    } else {
+                        logUnexpectedParsingBehavior()
+                    }
+                }
+        } else {
+            logUnexpectedParsingBehavior()
+        }
+        
+        //
+        
+        return .init(page: nil, sections: sections)
     }
     
     private func newsSectionsForNewsReplayParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {

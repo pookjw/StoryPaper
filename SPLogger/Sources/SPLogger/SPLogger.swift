@@ -33,23 +33,39 @@ public final class SPLogger {
     }
     
     public func error(_ message: Any, file: String = #file, function: String = #function, line: Int = #line) {
+#if DEBUG
+        fatalError("\(message)")
+#else
         let fileName: String = fileName(for: file)
         logger.error("\(fileName) - \(function) - \(line) : \(String(describing: message))")
+#endif
     }
     
     public func warning(_ message: Any, file: String = #file, function: String = #function, line: Int = #line) {
+#if DEBUG
+        fatalError("\(message)")
+#else
         let fileName: String = fileName(for: file)
         logger.warning("\(fileName) - \(function) - \(line) : \(String(describing: message))")
+#endif
     }
     
     public func fault(_ message: Any, file: String = #file, function: String = #function, line: Int = #line) {
+#if DEBUG
+        fatalError("\(message)")
+#else
         let fileName: String = fileName(for: file)
         logger.fault("\(fileName) - \(function) - \(line) : \(String(describing: message))")
+#endif
     }
     
     public func critical(_ message: Any, file: String = #file, function: String = #function, line: Int = #line) {
+#if DEBUG
+        fatalError("\(message)")
+#else
         let fileName: String = fileName(for: file)
         logger.critical("\(fileName) - \(function) - \(line) : \(String(describing: message))")
+#endif
     }
     
     private func fileName(for filePath: String) -> String {
