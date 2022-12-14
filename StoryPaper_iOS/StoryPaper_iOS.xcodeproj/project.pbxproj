@@ -17,7 +17,7 @@
 		4F21D1BF294772A1001E8853 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F21D1BE294772A1001E8853 /* ContentView.swift */; };
 		4F21D1C1294772A2001E8853 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F21D1C0294772A2001E8853 /* Assets.xcassets */; };
 		4F21D1C4294772A2001E8853 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F21D1C3294772A2001E8853 /* Preview Assets.xcassets */; };
-		4F21D1F0294786C3001E8853 /* JtbcWebParser in Frameworks */ = {isa = PBXBuildFile; productRef = 4F21D1EF294786C3001E8853 /* JtbcWebParser */; };
+		4F4CD7C0294860AA0061689D /* SPWebParser in Frameworks */ = {isa = PBXBuildFile; productRef = 4F4CD7BF294860AA0061689D /* SPWebParser */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,7 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F21D1F0294786C3001E8853 /* JtbcWebParser in Frameworks */,
+				4F4CD7C0294860AA0061689D /* SPWebParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,7 +146,7 @@
 			);
 			name = StoryPaper_iOS;
 			packageProductDependencies = (
-				4F21D1EF294786C3001E8853 /* JtbcWebParser */,
+				4F4CD7BF294860AA0061689D /* SPWebParser */,
 			);
 			productName = StoryPaper_iOS;
 			productReference = 4F21D1672947721F001E8853 /* StoryPaper_iOS.app */;
@@ -556,9 +556,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4F21D1EF294786C3001E8853 /* JtbcWebParser */ = {
+		4F4CD7BF294860AA0061689D /* SPWebParser */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = JtbcWebParser;
+			productName = SPWebParser;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

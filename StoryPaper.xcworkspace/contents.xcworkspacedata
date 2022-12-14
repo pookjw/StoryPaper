@@ -2,10 +2,10 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:SPWebParser">
+      location = "group:Packages/SPError">
    </FileRef>
    <FileRef
-      location = "group:JtbcWebParser">
+      location = "group:Packages/SPWebParser">
    </FileRef>
    <FileRef
       location = "group:StoryPaper_iOS/StoryPaper_iOS.xcodeproj">

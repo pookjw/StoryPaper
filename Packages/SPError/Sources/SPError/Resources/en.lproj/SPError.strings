@@ -1,0 +1,5 @@
+"TYPE_MISMATCH" = "Type mismatch";
+
+"UNEXPECTED_NIL" = "A value is empty unexpectedly."
+
+"INVALID_HTTPS_RESPONSE_CODE" = "Invalid Server Code: %@";

@@ -1,0 +1,5 @@
+"TYPE_MISMATCH" = "형식이 일치하지 않습니다.";
+
+"UNEXPECTED_NIL" = "값이 비어 있습니다.";
+
+"INVALID_HTTPS_RESPONSE_CODE" = "올바르지 않은 서버 결과값: %@";
