@@ -215,7 +215,7 @@ extension JtbcWebParser: SPWebParser {
                     )
                 )
             } else {
-                    log.warning("Unexpected parsing behavior.")
+                log.warning("Unexpected parsing behavior.")
             }
         } else {
             log.warning("Unexpected parsing behavior.")
@@ -225,7 +225,7 @@ extension JtbcWebParser: SPWebParser {
         
         if let moduleFeedInElements: Elements = try? document.getElementsByClass("module_feed_in") {
             let moduleFeedNewsSections: [JtbcNewsSection] = moduleFeedInElements
-                .compactMap { element in
+                .compactMap { element -> JtbcNewsSection? in
                     let title: String?
                     let badgeText: String?
                     if let feedTitElement: Element = try? element
@@ -309,8 +309,6 @@ extension JtbcWebParser: SPWebParser {
                                         )
                                     }
                             }
-                    } else {
-                        log.warning("Unexpected parsing behavior.")
                     }
                     
                     if let txtListElements: Elements = try? element.getElementsByClass("txt-list") {
@@ -347,11 +345,69 @@ extension JtbcWebParser: SPWebParser {
                                         )
                                     }
                             }
-                    } else {
-                        log.warning("Unexpected parsing behavior.")
                     }
                     
+                    //
+                    
+                    if let timelineListInElements: Elements = try? element.getElementsByClass("timeline_list_in") {
+                        timelineListInElements
+                            .forEach { element in
+                                guard let ddElements: Elements = try? element.getElementsByTag("dd") else {
+                                    log.warning("Unexpected parsing behavior.")
+                                    return
+                                }
+                                
+                                ddElements
+                                    .forEach { element in
+                                        guard let aElement: Elements = try? element.getElementsByTag("a") else {
+                                            log.warning("Unexpected parsing behavior.")
+                                            return
+                                        }
+                                        
+                                        aElement
+                                            .forEach { element in
+                                                guard
+                                                    let href: String = try? element.attr("href"),
+                                                    let documentURL: URL = .init(string: href),
+                                                    let strongElement: Element = try? element
+                                                        .getElementsByTag("strong")
+                                                        .first()
+                                                else {
+                                                    log.warning("Unexpected parsing behavior.")
+                                                    return
+                                                }
+                                                
+                                                let thumbnailImageURL: URL?
+                                                if
+                                                    let imgElement: Element = try? element
+                                                        .getElementsByTag("img")
+                                                        .first(),
+                                                    let src: String = try? imgElement.attr("src")
+                                                {
+                                                    thumbnailImageURL = .init(string: src)
+                                                } else {
+                                                    thumbnailImageURL = nil
+                                                }
+                                                
+                                                items.append(
+                                                    .init(
+                                                        title: strongElement.ownText(),
+                                                        description: nil,
+                                                        thumbnailImageURL: thumbnailImageURL,
+                                                        documentURL: documentURL,
+                                                        date: nil,
+                                                        reporterName: nil
+                                                    )
+                                                )
+                                            }
+                                    }
+                            }
+                    }
+                    
+                    //
+                    
                     guard !items.isEmpty else {
+                        log.warning("Unexpected parsing behavior.")
                         return nil
                     }
                     
@@ -361,6 +417,8 @@ extension JtbcWebParser: SPWebParser {
                         newsItems: items
                     )
                 }
+            
+            //
             
             results.append(contentsOf: moduleFeedNewsSections)
         } else {
@@ -561,11 +619,11 @@ extension JtbcWebParser: SPWebParser {
         )
     }
     
-    private func newsSectionsForNewsReplayParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
+    private func newsSectionsForIndexParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
         fatalError()
     }
     
-    private func newsSectionsForIndexParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
+    private func newsSectionsForNewsReplayParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
         fatalError()
     }
     

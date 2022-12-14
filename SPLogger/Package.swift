@@ -6,10 +6,10 @@ import PackageDescription
 let package = Package(
     name: "SPLogger",
     platforms: [
-        .iOS(.v14),
-        .watchOS(.v7),
-        .tvOS(.v14),
-        .macOS(.v11)
+        .iOS(.v16),
+        .watchOS(.v9),
+        .tvOS(.v16),
+        .macOS(.v13)
     ],
     products: [
         .library(

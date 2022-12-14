@@ -23,6 +23,11 @@ final class JTBCWebParserTests: XCTestCase {
             }
             
             page += 1
+            
+            guard page < 100 else {
+                XCTFail("Too large page.")
+                return
+            }
         }
     }
 }
