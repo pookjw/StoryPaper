@@ -3,3 +3,5 @@
 "UNEXPECTED_NIL" = "A value is empty unexpectedly."
 
 "INVALID_HTTPS_RESPONSE_CODE" = "Invalid Server Code: %@";
+
+"EXCEED_PAGE" = "There's no more available pages to load.";

@@ -7,51 +7,32 @@ public actor JtbcWebParser {
 }
 
 extension JtbcWebParser: SPWebParser {
-    public typealias NewsSection = JtbcNewsSection
+    public typealias NewsResult = JtbcNewsResult
     public typealias NewsCategory = JtbcNewsCategory
     
-    public func newsSectionsForHome() async throws -> [JtbcNewsSection] {
-        try await newsSections(for: .home)
+    public func newsSectionsForHome(page: Int?, date: Date?) async throws -> JtbcNewsResult {
+        try await newsSections(for: .home, page: page, date: date)
     }
     
-    public func newsSections(for newsCategory: JtbcNewsCategory) async throws -> [JtbcNewsSection] {
-        let configuration: URLSessionConfiguration = .ephemeral
-        let session: URLSession = URLSession(configuration: configuration)
-        var request: URLRequest = .init(url: newsCategory.url)
-        request.httpMethod = "GET"
-        let (data, response): (Data, URLResponse) = try await session.data(for: request)
-        
-        guard let httpResponse: HTTPURLResponse = response as? HTTPURLResponse else {
-            throw SPError.typeMismatch
-        }
-        
-        guard httpResponse.statusCode == 200 else {
-            throw SPError.invalidHTTPResponseCode(httpResponse.statusCode)
-        }
-        
-        guard let html: String = .init(data: data, encoding: .utf8) else {
-            throw SPError.unexpectedNil
-        }
-        
-        let document: Document = try SwiftSoup.parse(html)
-        
+    public func newsSections(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
         switch newsCategory.parsingStrategy {
         case .`default`:
-            return newsSectionsForDefaultParsingStrategy(for: document)
+            return try await newsSectionsForDefaultParsingStrategy(for: newsCategory, page: page, date: date)
         case .list:
-            return try await newsSectionsForListParsingStrategy(for: document)
+            return try await newsSectionsForListParsingStrategy(for: newsCategory, page: page, date: date)
         case .index:
-            return try await newsSectionsForIndexParsingStrategy(for: document)
+            return try await newsSectionsForIndexParsingStrategy(for: newsCategory, page: page, date: date)
         case .newsReplay:
-            return try await newsSectionsForNewsReplayParsingStrategy(for: document)
+            return try await newsSectionsForNewsReplayParsingStrategy(for: newsCategory, page: page, date: date)
         case .timelineIssue:
-            return try await newsSectionsForTimelineIssueParsingStrategy(for: document)
+            return try await newsSectionsForTimelineIssueParsingStrategy(for: newsCategory, page: page, date: date)
         case .factCheck:
-            return try await newsSectionsForFactCheckParsingStrategy(for: document)
+            return try await newsSectionsForFactCheckParsingStrategy(for: newsCategory, page: page, date: date)
         }
     }
     
-    private func newsSectionsForDefaultParsingStrategy(for document: Document) -> [JtbcNewsSection] {
+    private func newsSectionsForDefaultParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
+        let document: Document = try await document(for: newsCategory.baseURLComponents)
         var results: [JtbcNewsSection] = []
         
         //
@@ -100,7 +81,8 @@ extension JtbcWebParser: SPWebParser {
                         description: nil,
                         thumbnailImageURL: thumbnailImageURL,
                         documentURL: documentURL,
-                        date: nil
+                        date: nil,
+                        reporterName: nil
                     )
                 }
             
@@ -118,13 +100,13 @@ extension JtbcWebParser: SPWebParser {
         //
         
         if let conTodayNewsElement: Element = try? document
-                .getElementsByClass("con today_news")
-                .first() {
+            .getElementsByClass("con today_news")
+            .first() {
             let sectionTitle: String?
             if
                 let todayNewsTitElement: Element = try? document
-                .getElementsByClass("today_news_tit")
-                .first(),
+                    .getElementsByClass("today_news_tit")
+                    .first(),
                 let spanElement: Element = try? todayNewsTitElement
                     .getElementsByTag("span")
                     .first()
@@ -173,7 +155,8 @@ extension JtbcWebParser: SPWebParser {
                                 description: nil,
                                 thumbnailImageURL: thumbnailImageURL,
                                 documentURL: documentURL,
-                                date: nil
+                                date: nil,
+                                reporterName: nil
                             )
                         )
                     }
@@ -201,7 +184,8 @@ extension JtbcWebParser: SPWebParser {
                                 description: nil,
                                 thumbnailImageURL: nil,
                                 documentURL: documentURL,
-                                date: nil
+                                date: nil,
+                                reporterName: nil
                             )
                         )
                     }
@@ -226,8 +210,8 @@ extension JtbcWebParser: SPWebParser {
                     let title: String?
                     let badgeText: String?
                     if let feedTitElement: Element = try? element
-                            .getElementsByClass("feed_tit")
-                            .first() {
+                        .getElementsByClass("feed_tit")
+                        .first() {
                         if let strongElement: Element = try? feedTitElement
                             .getElementsByTag("strong")
                             .first() {
@@ -293,7 +277,8 @@ extension JtbcWebParser: SPWebParser {
                                                 description: nil,
                                                 thumbnailImageURL: thumbnailImageURL,
                                                 documentURL: documentURL,
-                                                date: nil
+                                                date: nil,
+                                                reporterName: nil
                                             )
                                         )
                                     }
@@ -326,7 +311,8 @@ extension JtbcWebParser: SPWebParser {
                                                 description: nil,
                                                 thumbnailImageURL: nil,
                                                 documentURL: documentURL,
-                                                date: nil
+                                                date: nil,
+                                                reporterName: nil
                                             )
                                         )
                                     }
@@ -349,26 +335,242 @@ extension JtbcWebParser: SPWebParser {
         
         //
         
-        return results
+        return .init(
+            page: nil,
+            sections: results
+        )
     }
     
-    private func newsSectionsForListParsingStrategy(for document: Document) async throws -> [JtbcNewsSection] {
+    private func newsSectionsForListParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
+        var urlComponents: URLComponents = newsCategory.baseURLComponents
+        var queryItems: [URLQueryItem] = urlComponents.queryItems ?? []
+        
+        if let page: Int {
+            let pgiQueryItem: URLQueryItem = .init(name: "pgi", value: String(page))
+            queryItems.append(pgiQueryItem)
+        }
+        
+        if let date: Date {
+            let dateFormatter: DateFormatter = .init()
+            dateFormatter.dateFormat = "yyyyMMdd"
+            let pdate: String = dateFormatter.string(from: date)
+            let pdateQueryItem: URLQueryItem = .init(name: "pdate", value: pdate)
+            queryItems.append(pdateQueryItem)
+        }
+        
+        //        let date: Date
+        //        if let page: Int {
+        //            let currentDate: Date = .init()
+        //            let calendar: Calendar = .init(identifier: .gregorian)
+        //            var components: DateComponents = .init(calendar: calendar)
+        //            components.day = -page
+        //
+        //            guard let finalDate = calendar.date(byAdding: components, to: currentDate) else {
+        //                throw SPError.exceedPage
+        //            }
+        //
+        //            date = finalDate
+        //        } else {
+        //            date = .init()
+        //        }
+        
+        urlComponents.queryItems = queryItems
+        
+        let document: Document = try await document(for: urlComponents)
+        
+        //
+        
+        let sectionTitle: String?
+        if let dOnFirstChildElement: Element = try? document
+            .getElementsByClass("d on first_child")
+            .first() {
+            sectionTitle = dOnFirstChildElement.ownText()
+        } else if let dOnElement: Element = try? document
+            .getElementsByClass("d on")
+            .first() {
+            sectionTitle = dOnElement.ownText()
+        } else if let dOnEndChild: Element = try? document
+            .getElementsByClass("d on end_child")
+            .first() {
+            sectionTitle = dOnEndChild.ownText()
+        } else {
+            sectionTitle = nil
+        }
+        
+        //
+        
+        guard
+            let sectionListElement: Element = try? document.getElementById("section_list"),
+            let liElements: Elements = try? sectionListElement.getElementsByTag("li")
+        else {
+            throw SPError.exceedPage
+        }
+        
+        let items: [JtbcNewsItem] = liElements
+            .compactMap { element -> JtbcNewsItem? in
+                guard
+                    let titleCrElement: Element = try? element
+                        .getElementsByClass("title_cr")
+                        .first(),
+                    let titleCrAElement: Element = try? titleCrElement
+                        .getElementsByTag("a")
+                        .first(),
+                    let href: String = try? titleCrElement.attr("href")
+                else {
+                    return nil
+                }
+                
+                let title: String = titleCrAElement.ownText()
+                
+                var documentURLComponents: URLComponents = .init()
+                documentURLComponents.scheme = "https"
+                documentURLComponents.host = "news.jtbc.co.kr"
+                documentURLComponents.path = href
+                
+                guard let documentURL: URL = documentURLComponents.url else {
+                    return nil
+                }
+                
+                //
+                
+                let thumbnailImageURL: URL?
+                if
+                    let photoElement: Element = try? element
+                        .getElementsByClass("photo")
+                        .first(),
+                    let imgElement: Element = try? photoElement
+                        .getElementsByTag("img")
+                        .first(),
+                    let src: String = try? imgElement.attr("src")
+                {
+                    thumbnailImageURL = .init(string: src)
+                } else {
+                    thumbnailImageURL = nil
+                }
+                
+                //
+                
+                let description: String?
+                if
+                    let descReadCr: Element = try? element
+                        .getElementsByClass("desc read_cr")
+                        .first(),
+                    let aElement: Element = try? descReadCr
+                        .getElementsByTag("a")
+                        .first()
+                {
+                    description = aElement.ownText()
+                } else {
+                    description = nil
+                }
+                
+                //
+                
+                let date: Date?
+                let reporterName: String?
+                if let infoElement: Element = try? element
+                    .getElementsByClass("info")
+                    .first() {
+                    if let dateClass: Element = try? infoElement
+                        .getElementsByClass("date")
+                        .first() {
+                        let dateString: String = dateClass.ownText()
+                        let dateFormatter: DateFormatter = .init()
+                        dateFormatter.dateFormat = "yyyy-MM-dd a h:mm:ss"
+                        dateFormatter.locale = .init(identifier: "ko_KR")
+                        
+                        date = dateFormatter.date(from: dateString)
+                    } else {
+                        date = nil
+                    }
+                    
+                    if let writerClass: Element = try? infoElement
+                        .getElementsByClass("writer")
+                        .first() {
+                        reporterName = writerClass.ownText()
+                    } else {
+                        reporterName = nil
+                    }
+                } else {
+                    date = nil
+                    reporterName = nil
+                }
+                
+                return .init(
+                    title: title,
+                    description: description,
+                    thumbnailImageURL: thumbnailImageURL,
+                    documentURL: documentURL,
+                    date: date,
+                    reporterName: reporterName
+                )
+            }
+        
+        let currentPage: Int
+        let hasMorePage: Bool
+        if let pargerElement: Element = try? document.getElementById("CPContent_pager") {
+            hasMorePage = ((try? pargerElement.getElementsByClass("next").count) ?? .zero) > .zero
+            
+            if
+                let numSelectedClass: Element = try? pargerElement
+                    .getElementsByClass("num selected")
+                    .first(),
+                let number: Int = Int(numSelectedClass.ownText())
+            {
+                currentPage = number
+            } else {
+                currentPage = page ?? 1
+            }
+        } else {
+            currentPage = page ?? 1
+            hasMorePage = false
+        }
+        let page: JtbcNewsResult.Page = .init(currentPage: currentPage, hasMorePage: hasMorePage)
+        
+        return .init(page: page, sections: [.init(title: sectionTitle, badgeText: nil, newsItems: items)])
+    }
+    
+    private func newsSectionsForNewsReplayParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
         fatalError()
     }
     
-    private func newsSectionsForNewsReplayParsingStrategy(for document: Document) async throws -> [JtbcNewsSection] {
+    private func newsSectionsForIndexParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
         fatalError()
     }
     
-    private func newsSectionsForIndexParsingStrategy(for document: Document) async throws -> [JtbcNewsSection] {
+    private func newsSectionsForTimelineIssueParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
         fatalError()
     }
     
-    private func newsSectionsForTimelineIssueParsingStrategy(for document: Document) async throws -> [JtbcNewsSection] {
+    private func newsSectionsForFactCheckParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
         fatalError()
     }
     
-    private func newsSectionsForFactCheckParsingStrategy(for document: Document) async throws -> [JtbcNewsSection] {
-        fatalError()
+    private func document(for urlComponents: URLComponents) async throws -> Document {
+        let configuration: URLSessionConfiguration = .ephemeral
+        let session: URLSession = URLSession(configuration: configuration)
+        
+        guard let url: URL = urlComponents.url else {
+            throw SPError.unexpectedNil
+        }
+        
+        var request: URLRequest = .init(url: url)
+        request.httpMethod = "GET"
+        let (data, response): (Data, URLResponse) = try await session.data(for: request)
+        
+        guard let httpResponse: HTTPURLResponse = response as? HTTPURLResponse else {
+            throw SPError.typeMismatch
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw SPError.invalidHTTPResponseCode(httpResponse.statusCode)
+        }
+        
+        guard let html: String = .init(data: data, encoding: .utf8) else {
+            throw SPError.unexpectedNil
+        }
+        
+        let document: Document = try SwiftSoup.parse(html)
+        return document
     }
 }

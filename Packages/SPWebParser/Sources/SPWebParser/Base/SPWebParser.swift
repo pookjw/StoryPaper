@@ -1,9 +1,9 @@
 import Foundation
 
 public protocol SPWebParser {
-    associatedtype NewsSection: SPNewsSection
+    associatedtype NewsResult: SPNewsResult
     associatedtype NewsCategory: SPNewsCatetory
     
-    func newsSectionsForHome() async throws -> [NewsSection]
-    func newsSections(for newsCategory: NewsCategory) async throws -> [NewsSection]
+    func newsSectionsForHome(page: Int?, date: Date?) async throws -> NewsResult
+    func newsSections(for newsCategory: NewsCategory, page: Int?, date: Date?) async throws -> NewsResult
 }

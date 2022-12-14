@@ -6,4 +6,5 @@ public struct JtbcNewsItem: SPNewsItem {
     public let thumbnailImageURL: URL?
     public let documentURL: URL
     public let date: Date?
+    public let reporterName: String?
 }

@@ -62,7 +62,7 @@ public enum JtbcNewsCategory: SPNewsCatetory {
         return NSLocalizedString(key, tableName: "JTBCNewsCategory", bundle: .module, comment: "")
     }
     
-    var url: URL! {
+    var baseURLComponents: URLComponents {
         let path: String
         let queryItems: [URLQueryItem]?
         
@@ -130,7 +130,7 @@ public enum JtbcNewsCategory: SPNewsCatetory {
         urlComponents.path = path
         urlComponents.queryItems = queryItems
         
-        return urlComponents.url
+        return urlComponents
     }
     
     var parsingStrategy: JtbcNewsParsingStrategy {

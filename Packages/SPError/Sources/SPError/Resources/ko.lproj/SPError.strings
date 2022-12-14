@@ -3,3 +3,5 @@
 "UNEXPECTED_NIL" = "값이 비어 있습니다.";
 
 "INVALID_HTTPS_RESPONSE_CODE" = "올바르지 않은 서버 결과값: %@";
+
+"EXCEED_PAGE" = "더 이상 불러 올 수 있는 페이지가 없습니다.";

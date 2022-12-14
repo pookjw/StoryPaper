@@ -6,4 +6,5 @@ public protocol SPNewsItem: Sendable, Hashable {
     var thumbnailImageURL: URL? { get }
     var documentURL: URL { get }
     var date: Date? { get }
+    var reporterName: String? { get }
 }
