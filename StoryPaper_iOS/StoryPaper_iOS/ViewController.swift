@@ -6,12 +6,12 @@
 //
 
 import UIKit
+import SPLogger
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
     }
 
 

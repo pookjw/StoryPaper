@@ -4,23 +4,28 @@
 import PackageDescription
 
 let package = Package(
-    name: "SPError",
-    defaultLocalization: "en",
+    name: "SPLogger",
+    platforms: [
+        .iOS(.v14),
+        .watchOS(.v7),
+        .tvOS(.v14),
+        .macOS(.v11)
+    ],
     products: [
         .library(
-            name: "SPError",
-            targets: ["SPError"]
+            name: "SPLogger",
+            targets: ["SPLogger"]
         )
     ],
-    dependencies: [],
+    dependencies: [
+    ],
     targets: [
         .target(
-            name: "SPError",
+            name: "SPLogger",
             dependencies: [],
-            resources: [.process("Resources")],
             swiftSettings: [
                 .unsafeFlags(["-strict-concurrency=complete"])
             ]
-        ),
+        )
     ]
 )

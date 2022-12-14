@@ -20,14 +20,16 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.4.3"),
-        .package(name: "SPError", path: "../SPError")
+        .package(name: "SPError", path: "../SPError"),
+        .package(name: "SPLogger", path: "../SPLogger")
     ],
     targets: [
         .target(
             name: "SPWebParser",
             dependencies: [
                 "SwiftSoup",
-                "SPError"
+                "SPError",
+                "SPLogger"
             ],
             resources: [.process("Resources")],
             swiftSettings: [

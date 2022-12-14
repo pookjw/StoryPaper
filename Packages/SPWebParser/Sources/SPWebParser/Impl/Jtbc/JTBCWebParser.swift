@@ -1,5 +1,6 @@
 import Foundation
 import SPError
+import SPLogger
 import SwiftSoup
 
 public actor JtbcWebParser {
@@ -64,6 +65,7 @@ extension JtbcWebParser: SPWebParser {
                         let documentURLString: String = try? dlAElement.attr("href"),
                         let documentURL: URL = .init(string: documentURLString)
                     else {
+                        log.warning("Unexpected parsing behavior.")
                         return nil
                     }
                     
@@ -71,6 +73,7 @@ extension JtbcWebParser: SPWebParser {
                     if let thumbnailImageURLString: String = try? ddImgElement.attr("src") {
                         thumbnailImageURL = .init(string: thumbnailImageURLString)
                     } else {
+                        log.warning("Unexpected parsing behavior.")
                         thumbnailImageURL = nil
                     }
                     
@@ -94,7 +97,11 @@ extension JtbcWebParser: SPWebParser {
                         newsItems: showcaseNewsItems
                     )
                 )
+            } else {
+                log.warning("Unexpected parsing behavior.")
             }
+        } else {
+            log.warning("Unexpected parsing behavior.")
         }
         
         //
@@ -113,6 +120,7 @@ extension JtbcWebParser: SPWebParser {
             {
                 sectionTitle = spanElement.ownText()
             } else {
+                log.warning("Unexpected parsing behavior.")
                 sectionTitle = nil
             }
             
@@ -137,6 +145,7 @@ extension JtbcWebParser: SPWebParser {
                                 .attr("href"),
                             let documentURL: URL = .init(string: documentURLString)
                         else {
+                            log.warning("Unexpected parsing behavior.")
                             return
                         }
                         
@@ -146,6 +155,7 @@ extension JtbcWebParser: SPWebParser {
                         if let thumbnailImageURLString: String = try? imgElement.attr("src") {
                             thumbnailImageURL = .init(string: thumbnailImageURLString)
                         } else {
+                            log.warning("Unexpected parsing behavior.")
                             thumbnailImageURL = nil
                         }
                         
@@ -160,6 +170,8 @@ extension JtbcWebParser: SPWebParser {
                             )
                         )
                     }
+            } else {
+                log.warning("Unexpected parsing behavior.")
             }
             
             if let normalElements: Elements = try? conTodayNewsElement.getElementsByClass("normal") {
@@ -173,6 +185,7 @@ extension JtbcWebParser: SPWebParser {
                                 .attr("href"),
                             let documentURL: URL = .init(string: documentURLString)
                         else {
+                            log.warning("Unexpected parsing behavior.")
                             return
                         }
                         
@@ -189,6 +202,8 @@ extension JtbcWebParser: SPWebParser {
                             )
                         )
                     }
+            } else {
+                log.warning("Unexpected parsing behavior.")
             }
             
             if !todayNewsItems.isEmpty {
@@ -199,7 +214,11 @@ extension JtbcWebParser: SPWebParser {
                         newsItems: todayNewsItems
                     )
                 )
+            } else {
+                    log.warning("Unexpected parsing behavior.")
             }
+        } else {
+            log.warning("Unexpected parsing behavior.")
         }
         
         //
@@ -217,6 +236,7 @@ extension JtbcWebParser: SPWebParser {
                             .first() {
                             title = strongElement.ownText()
                         } else {
+                            log.warning("Unexpected parsing behavior.")
                             title = nil
                         }
                         
@@ -225,9 +245,11 @@ extension JtbcWebParser: SPWebParser {
                             .first() {
                             badgeText = spanElement.ownText()
                         } else {
+                            log.warning("Unexpected parsing behavior.")
                             badgeText = nil
                         }
                     } else {
+                        log.warning("Unexpected parsing behavior.")
                         title = nil
                         badgeText = nil
                     }
@@ -241,6 +263,7 @@ extension JtbcWebParser: SPWebParser {
                         imgElements
                             .forEach { element in
                                 guard let aElements: Elements = try? element.getElementsByTag("a") else {
+                                    log.warning("Unexpected parsing behavior.")
                                     return
                                 }
                                 
@@ -250,6 +273,7 @@ extension JtbcWebParser: SPWebParser {
                                             let documentURLString: String = try? element.attr("href"),
                                             let documentURL: URL = .init(string: documentURLString)
                                         else {
+                                            log.warning("Unexpected parsing behavior.")
                                             return
                                         }
                                         
@@ -261,6 +285,7 @@ extension JtbcWebParser: SPWebParser {
                                                 .getElementsByTag("strong")
                                                 .first()
                                         else {
+                                            log.warning("Unexpected parsing behavior.")
                                             return
                                         }
                                         
@@ -268,6 +293,7 @@ extension JtbcWebParser: SPWebParser {
                                         if let thumbnailImageURLString: String = try? imgElement.attr("src") {
                                             thumbnailImageURL = .init(string: thumbnailImageURLString)
                                         } else {
+                                            log.warning("Unexpected parsing behavior.")
                                             thumbnailImageURL = nil
                                         }
                                         
@@ -283,12 +309,15 @@ extension JtbcWebParser: SPWebParser {
                                         )
                                     }
                             }
+                    } else {
+                        log.warning("Unexpected parsing behavior.")
                     }
                     
                     if let txtListElements: Elements = try? element.getElementsByClass("txt-list") {
                         txtListElements
                             .forEach { element in
                                 guard let liElements: Elements = try? element.getElementsByTag("li") else {
+                                    log.warning("Unexpected parsing behavior.")
                                     return
                                 }
                                 
@@ -302,6 +331,7 @@ extension JtbcWebParser: SPWebParser {
                                                 .attr("href"),
                                             let documentURL: URL = .init(string: documentURLString)
                                         else {
+                                            log.warning("Unexpected parsing behavior.")
                                             return
                                         }
                                         
@@ -317,6 +347,8 @@ extension JtbcWebParser: SPWebParser {
                                         )
                                     }
                             }
+                    } else {
+                        log.warning("Unexpected parsing behavior.")
                     }
                     
                     guard !items.isEmpty else {
@@ -331,6 +363,8 @@ extension JtbcWebParser: SPWebParser {
                 }
             
             results.append(contentsOf: moduleFeedNewsSections)
+        } else {
+            log.warning("Unexpected parsing behavior.")
         }
         
         //
@@ -358,22 +392,6 @@ extension JtbcWebParser: SPWebParser {
             queryItems.append(pdateQueryItem)
         }
         
-        //        let date: Date
-        //        if let page: Int {
-        //            let currentDate: Date = .init()
-        //            let calendar: Calendar = .init(identifier: .gregorian)
-        //            var components: DateComponents = .init(calendar: calendar)
-        //            components.day = -page
-        //
-        //            guard let finalDate = calendar.date(byAdding: components, to: currentDate) else {
-        //                throw SPError.exceedPage
-        //            }
-        //
-        //            date = finalDate
-        //        } else {
-        //            date = .init()
-        //        }
-        
         urlComponents.queryItems = queryItems
         
         let document: Document = try await document(for: urlComponents)
@@ -394,6 +412,7 @@ extension JtbcWebParser: SPWebParser {
             .first() {
             sectionTitle = dOnEndChild.ownText()
         } else {
+            log.warning("Unexpected parsing behavior.")
             sectionTitle = nil
         }
         
@@ -417,6 +436,7 @@ extension JtbcWebParser: SPWebParser {
                         .first(),
                     let href: String = try? titleCrElement.attr("href")
                 else {
+                    log.warning("Unexpected parsing behavior.")
                     return nil
                 }
                 
@@ -428,6 +448,7 @@ extension JtbcWebParser: SPWebParser {
                 documentURLComponents.path = href
                 
                 guard let documentURL: URL = documentURLComponents.url else {
+                    log.warning("Unexpected parsing behavior.")
                     return nil
                 }
                 
@@ -445,6 +466,7 @@ extension JtbcWebParser: SPWebParser {
                 {
                     thumbnailImageURL = .init(string: src)
                 } else {
+                    log.warning("Unexpected parsing behavior.")
                     thumbnailImageURL = nil
                 }
                 
@@ -461,6 +483,7 @@ extension JtbcWebParser: SPWebParser {
                 {
                     description = aElement.ownText()
                 } else {
+                    log.warning("Unexpected parsing behavior.")
                     description = nil
                 }
                 
@@ -481,6 +504,7 @@ extension JtbcWebParser: SPWebParser {
                         
                         date = dateFormatter.date(from: dateString)
                     } else {
+                        log.warning("Unexpected parsing behavior.")
                         date = nil
                     }
                     
@@ -489,9 +513,11 @@ extension JtbcWebParser: SPWebParser {
                         .first() {
                         reporterName = writerClass.ownText()
                     } else {
+                        log.warning("Unexpected parsing behavior.")
                         reporterName = nil
                     }
                 } else {
+                    log.warning("Unexpected parsing behavior.")
                     date = nil
                     reporterName = nil
                 }
@@ -519,15 +545,20 @@ extension JtbcWebParser: SPWebParser {
             {
                 currentPage = number
             } else {
+                log.warning("Unexpected parsing behavior.")
                 currentPage = page ?? 1
             }
         } else {
+            log.warning("Unexpected parsing behavior.")
             currentPage = page ?? 1
             hasMorePage = false
         }
-        let page: JtbcNewsResult.Page = .init(currentPage: currentPage, hasMorePage: hasMorePage)
         
-        return .init(page: page, sections: [.init(title: sectionTitle, badgeText: nil, newsItems: items)])
+        let page: JtbcNewsResult.Page = .init(currentPage: currentPage, hasMorePage: hasMorePage)
+        return .init(
+            page: page,
+            sections: [.init(title: sectionTitle, badgeText: nil, newsItems: items)]
+        )
     }
     
     private func newsSectionsForNewsReplayParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
