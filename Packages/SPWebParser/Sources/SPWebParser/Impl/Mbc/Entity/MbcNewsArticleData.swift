@@ -24,8 +24,12 @@ extension MbcNewsArticleData: Decodable {
         
         //
         
-        if let imageURLString: String = try container.decodeIfPresent(String.self, forKey: .Image) {
-            imageURL = .init(string: "https:\(imageURLString)")
+        if
+            let imageURLString: String = try container.decodeIfPresent(String.self, forKey: .Image),
+            var imageURLComponents: URLComponents = .init(string: imageURLString)
+        {
+            imageURLComponents.scheme = "https"
+            imageURL = imageURLComponents.url
         } else {
             imageURL = nil
         }
