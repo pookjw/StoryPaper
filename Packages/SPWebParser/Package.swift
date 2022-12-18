@@ -39,6 +39,7 @@ let package = Package(
         .testTarget(
             name: "SPWebParserTests",
             dependencies: ["SPWebParser"],
+            resources: [.process("Resources")],
             swiftSettings: [
                 .unsafeFlags(["-strict-concurrency=complete"])
             ]

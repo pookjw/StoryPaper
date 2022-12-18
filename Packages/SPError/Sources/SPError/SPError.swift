@@ -5,6 +5,7 @@ public enum SPError: LocalizedError {
     case unexpectedNil
     case invalidHTTPResponseCode(Int)
     case exceedPage
+    case noAvailableNewsForSpecifiedDate
     
     public var errorDescription: String? {
         switch self {
@@ -16,6 +17,8 @@ public enum SPError: LocalizedError {
             return String(format: localizedString(for: "INVALID_HTTPS_RESPONSE_CODE"), arguments: ["\(code)"])
         case .exceedPage:
             return localizedString(for: "EXCEED_PAGE")
+        default:
+            return nil
         }
     }
     

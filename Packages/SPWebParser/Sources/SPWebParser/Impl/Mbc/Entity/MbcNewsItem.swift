@@ -1,6 +1,6 @@
 import Foundation
 
-public struct JtbcNewsItem: SPNewsItem {
+public struct MbcNewsItem: SPNewsItem {
     public let title: String
     public let description: String?
     public let thumbnailImageURL: URL?

@@ -3,7 +3,7 @@ import Foundation
 public enum JtbcNewsCategory: SPNewsCatetory {
     case home
     
-    case breakingNews
+    case breakingNews((page: Int, day: Date))
     case politics
     case economy
     case society
@@ -13,13 +13,9 @@ public enum JtbcNewsCategory: SPNewsCatetory {
     case sports
     case weather
     
-    case jtbcNewsroom
-    case sangamdongClass
-    case politicalDepartmentMeeting
-    
-    case factCheck
-    case closedCamera
-    case behindPlus
+    case jtbcNewsroom(Date)
+    case sangamdongClass(Date)
+    case politicalDepartmentMeeting(Date)
     
     public var text: String {
         let key: String
@@ -51,18 +47,21 @@ public enum JtbcNewsCategory: SPNewsCatetory {
             key = "SANGAMDONG_CLASS"
         case .politicalDepartmentMeeting:
             key = "POLITICAL_DEPARTMENT_MEETING"
-        case .factCheck:
-            key = "FACT_CHECK"
-        case .closedCamera:
-            key = "CLOSED_CAMERA"
-        case .behindPlus:
-            key = "BEHIND_PLUS"
         }
         
-        return NSLocalizedString(key, tableName: "JTBCNewsCategory", bundle: .module, comment: "")
+        return NSLocalizedString(key, tableName: "JtbcNewsCategory", bundle: .module, comment: .init())
     }
     
-    var baseURLComponents: URLComponents {
+    public var requestDateComponent: SPNewsRequestDateComponent? {
+        switch self {
+        case .breakingNews, .jtbcNewsroom, .sangamdongClass, .politicalDepartmentMeeting:
+            return .day
+        default:
+            return nil
+        }
+    }
+    
+    var urlComponents: URLComponents {
         let path: String
         let queryItems: [URLQueryItem]?
         
@@ -70,9 +69,13 @@ public enum JtbcNewsCategory: SPNewsCatetory {
         case .home:
             path = "/default.aspx"
             queryItems = nil
-        case .breakingNews:
+        case let .breakingNews(data):
             path = "/section/list.aspx"
-            queryItems = [.init(name: "scode", value: nil)]
+            queryItems = [
+                .init(name: "scode", value: nil),
+                .init(name: "pgi", value: String(data.page)),
+                .init(name: "pdate", value: dateFormatter.string(from: data.day))
+            ]
         case .politics:
             path = "/section/index.aspx"
             queryItems = [.init(name: "scode", value: "10")]
@@ -97,29 +100,23 @@ public enum JtbcNewsCategory: SPNewsCatetory {
         case .weather:
             path = "/section/index.aspx"
             queryItems = [.init(name: "scode", value: "80")]
-        case .jtbcNewsroom:
+        case let .jtbcNewsroom(day):
             path = "/Replay/news_replay.aspx"
-            queryItems = [.init(name: "fcode", value: "PR10000403")]
-        case .sangamdongClass:
-            path = "/Replay/news_replay.aspx"
-            queryItems = [.init(name: "fcode", value: "PR10010250")]
-        case .politicalDepartmentMeeting:
-            path = "/Replay/news_replay.aspx"
-            queryItems = [.init(name: "fcode", value: "PR10010301")]
-        case .factCheck:
-            path = "/factcheck"
-            queryItems = nil
-        case .closedCamera:
-            path = "/hotissue/timeline_Issue.aspx"
             queryItems = [
-                .init(name: "comp_id", value: "NC10011403"),
-                .init(name: "mgubun", value: "news9")
+                .init(name: "fcode", value: "PR10000403"),
+                .init(name: "strSearchDate", value: dateFormatter.string(from: day))
             ]
-        case .behindPlus:
-            path = "/hotissue/timeline_Issue.aspx"
+        case let .sangamdongClass(day):
+            path = "/Replay/news_replay.aspx"
             queryItems = [
-                .init(name: "comp_id", value: "NC10012518"),
-                .init(name: "mgubun", value: "news9")
+                .init(name: "fcode", value: "PR10010250"),
+                .init(name: "strSearchDate", value: dateFormatter.string(from: day))
+            ]
+        case let .politicalDepartmentMeeting(day):
+            path = "/Replay/news_replay.aspx"
+            queryItems = [
+                .init(name: "fcode", value: "PR10010301"),
+                .init(name: "strSearchDate", value: dateFormatter.string(from: day))
             ]
         }
         
@@ -143,10 +140,13 @@ public enum JtbcNewsCategory: SPNewsCatetory {
             return .index
         case .jtbcNewsroom, .sangamdongClass, .politicalDepartmentMeeting:
             return .newsReplay
-        case .factCheck:
-            return .factCheck
-        case .closedCamera, .behindPlus:
-            return .timelineIssue
         }
+    }
+    
+    private var dateFormatter: DateFormatter {
+        let dateFormatter: DateFormatter = .init()
+        dateFormatter.dateFormat = "yyyyMMdd"
+        dateFormatter.locale = .init(identifier: "ko_KR")
+        return dateFormatter
     }
 }

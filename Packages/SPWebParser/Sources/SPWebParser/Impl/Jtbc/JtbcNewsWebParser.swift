@@ -1,39 +1,37 @@
 import Foundation
 import SPError
+import SPLogger
 import SwiftSoup
 
-public actor JtbcWebParser {
+public final class JtbcNewsWebParser {
     
 }
 
-extension JtbcWebParser: SPWebParser {
+extension JtbcNewsWebParser: SPWebParser {
     public typealias NewsResult = JtbcNewsResult
     public typealias NewsCategory = JtbcNewsCategory
     
-    public func newsSectionsForHome(page: Int?, date: Date?) async throws -> JtbcNewsResult {
-        try await newsSections(for: .home, page: page, date: date)
+    public func newsResultForHome() async throws -> JtbcNewsResult {
+        try await newsResult(from: .home)
     }
     
-    public func newsSections(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
+    public func newsResult(from newsCategory: JtbcNewsCategory) async throws -> JtbcNewsResult {
+        let document: Document = try await document(from: newsCategory)
+        
         switch newsCategory.parsingStrategy {
         case .`default`:
-            return try await newsSectionsForDefaultParsingStrategy(for: newsCategory, page: page, date: date)
+            return try await newsResultForDefaultParsingStrategy(from: document)
         case .list:
-            return try await newsSectionsForListParsingStrategy(for: newsCategory, page: page, date: date)
+            return try await newsResultForListParsingStrategy(from: document)
         case .index:
-            return try await newsSectionsForIndexParsingStrategy(for: newsCategory, page: page, date: date)
+            return try await newsResultForIndexParsingStrategy(from: document)
         case .newsReplay:
-            return try await newsSectionsForNewsReplayParsingStrategy(for: newsCategory, page: page, date: date)
-        case .timelineIssue:
-            return try await newsSectionsForTimelineIssueParsingStrategy(for: newsCategory, page: page, date: date)
-        case .factCheck:
-            return try await newsSectionsForFactCheckParsingStrategy(for: newsCategory, page: page, date: date)
+            return try await newsResultForNewsReplayParsingStrategy(from: document)
         }
     }
     
-    private func newsSectionsForDefaultParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
-        let document: Document = try await document(for: newsCategory.baseURLComponents)
-        var results: [JtbcNewsSection] = []
+    private func newsResultForDefaultParsingStrategy(from document: Document) async throws -> JtbcNewsResult {
+        var sections: [JtbcNewsSection] = []
         
         //
         
@@ -84,12 +82,12 @@ extension JtbcWebParser: SPWebParser {
                         thumbnailImageURL: thumbnailImageURL,
                         documentURL: documentURL,
                         date: nil,
-                        reporterName: nil
+                        author: nil
                     )
                 }
             
             if !showcaseNewsItems.isEmpty {
-                results.append(
+                sections.append(
                     .init(
                         title: nil,
                         badgeText: nil,
@@ -165,7 +163,7 @@ extension JtbcWebParser: SPWebParser {
                                 thumbnailImageURL: thumbnailImageURL,
                                 documentURL: documentURL,
                                 date: nil,
-                                reporterName: nil
+                                author: nil
                             )
                         )
                     }
@@ -197,7 +195,7 @@ extension JtbcWebParser: SPWebParser {
                                 thumbnailImageURL: nil,
                                 documentURL: documentURL,
                                 date: nil,
-                                reporterName: nil
+                                author: nil
                             )
                         )
                     }
@@ -206,7 +204,7 @@ extension JtbcWebParser: SPWebParser {
             }
             
             if !todayNewsItems.isEmpty {
-                results.append(
+                sections.append(
                     .init(
                         title: sectionTitle,
                         badgeText: nil,
@@ -303,7 +301,7 @@ extension JtbcWebParser: SPWebParser {
                                                 thumbnailImageURL: thumbnailImageURL,
                                                 documentURL: documentURL,
                                                 date: nil,
-                                                reporterName: nil
+                                                author: nil
                                             )
                                         )
                                     }
@@ -339,7 +337,7 @@ extension JtbcWebParser: SPWebParser {
                                                 thumbnailImageURL: nil,
                                                 documentURL: documentURL,
                                                 date: nil,
-                                                reporterName: nil
+                                                author: nil
                                             )
                                         )
                                     }
@@ -395,7 +393,7 @@ extension JtbcWebParser: SPWebParser {
                                                         thumbnailImageURL: thumbnailImageURL,
                                                         documentURL: documentURL,
                                                         date: nil,
-                                                        reporterName: nil
+                                                        author: nil
                                                     )
                                                 )
                                             }
@@ -419,7 +417,7 @@ extension JtbcWebParser: SPWebParser {
             
             //
             
-            results.append(contentsOf: moduleFeedNewsSections)
+            sections.append(contentsOf: moduleFeedNewsSections)
         } else {
             logUnexpectedParsingBehavior()
         }
@@ -427,35 +425,12 @@ extension JtbcWebParser: SPWebParser {
         //
         
         return .init(
-            page: nil,
-            sections: results
+            hasMorePage: false,
+            sections: sections
         )
     }
     
-    private func newsSectionsForListParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
-        var urlComponents: URLComponents = newsCategory.baseURLComponents
-        var queryItems: [URLQueryItem] = urlComponents.queryItems ?? []
-        
-        if let page: Int {
-            let pgiQueryItem: URLQueryItem = .init(name: "pgi", value: String(page))
-            queryItems.append(pgiQueryItem)
-        }
-        
-        if let date: Date {
-            let dateFormatter: DateFormatter = .init()
-            dateFormatter.dateFormat = "yyyyMMdd"
-            dateFormatter.locale = .init(identifier: "ko_KR")
-            let pdate: String = dateFormatter.string(from: date)
-            let pdateQueryItem: URLQueryItem = .init(name: "pdate", value: pdate)
-            queryItems.append(pdateQueryItem)
-        }
-        
-        urlComponents.queryItems = queryItems
-        
-        let document: Document = try await document(for: urlComponents)
-        
-        //
-        
+    private func newsResultForListParsingStrategy(from document: Document) async throws -> JtbcNewsResult {
         let sectionTitle: String?
         if let dOnFirstChildElement: Element = try? document
             .getElementsByClass("d on first_child")
@@ -548,7 +523,7 @@ extension JtbcWebParser: SPWebParser {
                 //
                 
                 let date: Date?
-                let reporterName: String?
+                let author: String?
                 if let infoElement: Element = try? element
                     .getElementsByClass("info")
                     .first() {
@@ -569,15 +544,15 @@ extension JtbcWebParser: SPWebParser {
                     if let writerClass: Element = try? infoElement
                         .getElementsByClass("writer")
                         .first() {
-                        reporterName = writerClass.ownText()
+                        author = writerClass.ownText()
                     } else {
                         logUnexpectedParsingBehavior()
-                        reporterName = nil
+                        author = nil
                     }
                 } else {
                     logUnexpectedParsingBehavior()
                     date = nil
-                    reporterName = nil
+                    author = nil
                 }
                 
                 return .init(
@@ -586,41 +561,31 @@ extension JtbcWebParser: SPWebParser {
                     thumbnailImageURL: thumbnailImageURL,
                     documentURL: documentURL,
                     date: date,
-                    reporterName: reporterName
+                    author: author
                 )
             }
         
-        let currentPage: Int
         let hasMorePage: Bool
         if let pargerElement: Element = try? document.getElementById("CPContent_pager") {
             hasMorePage = ((try? pargerElement.getElementsByClass("next").count) ?? .zero) > .zero
-            
-            if
-                let numSelectedClass: Element = try? pargerElement
-                    .getElementsByClass("num selected")
-                    .first(),
-                let number: Int = Int(numSelectedClass.ownText())
-            {
-                currentPage = number
-            } else {
-                // When a page has single page, this will occur.
-                currentPage = page ?? 1
-            }
         } else {
-            logUnexpectedParsingBehavior()
-            currentPage = page ?? 1
+            // When a page has single page, this will occur.
             hasMorePage = false
         }
         
-        let page: JtbcNewsResult.Page = .init(currentPage: currentPage, hasMorePage: hasMorePage)
+        guard !items.isEmpty else {
+            throw SPError.noAvailableNewsForSpecifiedDate
+        }
+        
         return .init(
-            page: page,
-            sections: [.init(title: sectionTitle, badgeText: nil, newsItems: items)]
+            hasMorePage: hasMorePage,
+            sections: [
+                .init(title: sectionTitle, badgeText: nil, newsItems: items)
+            ]
         )
     }
     
-    private func newsSectionsForIndexParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
-        let document: Document = try await document(for: newsCategory.baseURLComponents)
+    private func newsResultForIndexParsingStrategy(from document: Document) async throws -> JtbcNewsResult {
         var sections: [JtbcNewsSection] = []
         
         //
@@ -642,8 +607,8 @@ extension JtbcWebParser: SPWebParser {
                     .forEach { element in
                         guard
                             let dtElement: Element = try? element
-                            .getElementsByTag("dt")
-                            .first(),
+                                .getElementsByTag("dt")
+                                .first(),
                             let dtAElement: Element = try? dtElement
                                 .getElementsByTag("a")
                                 .first(),
@@ -703,12 +668,12 @@ extension JtbcWebParser: SPWebParser {
                         
                         //
                         
-                        let reporterName: String?
+                        let author: String?
                         let date: Date?
                         if let writerElement: Element = try? element
-                                .getElementsByClass("writer")
-                                .first() {
-                            reporterName = writerElement.ownText()
+                            .getElementsByClass("writer")
+                            .first() {
+                            author = writerElement.ownText()
                             
                             if let dateElement: Element = try? writerElement
                                 .getElementsByClass("date")
@@ -730,10 +695,10 @@ extension JtbcWebParser: SPWebParser {
                             }
                         } else {
                             self.logUnexpectedParsingBehavior()
-                            reporterName = nil
+                            author = nil
                             date = nil
                         }
-                            
+                        
                         
                         items.append(
                             .init(
@@ -742,7 +707,7 @@ extension JtbcWebParser: SPWebParser {
                                 thumbnailImageURL: thumbnailImageURL,
                                 documentURL: documentURL,
                                 date: date,
-                                reporterName: reporterName
+                                author: author
                             )
                         )
                     }
@@ -777,8 +742,8 @@ extension JtbcWebParser: SPWebParser {
                     let sectionTitle: String?
                     if
                         let sectionTitleElement: Element = try? element
-                        .getElementsByClass("section_title")
-                        .first(),
+                            .getElementsByClass("section_title")
+                            .first(),
                         let emElement: Element = try? sectionTitleElement
                             .getElementsByTag("em")
                             .first()
@@ -890,16 +855,16 @@ extension JtbcWebParser: SPWebParser {
                             
                             //
                             
-                            let reporterName: String?
+                            let author: String?
                             if let writerElement: Element = try? element
-                                    .getElementsByClass("writer")
-                                    .first() {
-                                reporterName = writerElement.ownText()
+                                .getElementsByClass("writer")
+                                .first() {
+                                author = writerElement.ownText()
                             } else {
                                 self.logUnexpectedParsingBehavior()
-                                reporterName = nil
+                                author = nil
                             }
-                                
+                            
                             
                             return .init(
                                 title: title,
@@ -907,7 +872,7 @@ extension JtbcWebParser: SPWebParser {
                                 thumbnailImageURL: thumbnailImageURL,
                                 documentURL: documentURL,
                                 date: date,
-                                reporterName: reporterName
+                                author: author
                             )
                         }
                     
@@ -923,28 +888,198 @@ extension JtbcWebParser: SPWebParser {
         
         //
         
-        return .init(page: nil, sections: sections)
+        return .init(
+            hasMorePage: false,
+            sections: sections
+        )
     }
     
-    private func newsSectionsForNewsReplayParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
-        fatalError()
+    private func newsResultForNewsReplayParsingStrategy(from document: Document) async throws -> JtbcNewsResult {
+        var sections: [JtbcNewsSection] = []
+        
+        if let reviewHeadlineElement: Elements = try? document.getElementsByClass("review_headline_v2") {
+            var items: [JtbcNewsItem] = []
+            
+            reviewHeadlineElement
+                .forEach { element in
+                    guard let ddElements: Elements = try? element.getElementsByTag("dd") else {
+                        return
+                    }
+                    
+                    ddElements
+                        .forEach { element in
+                            guard
+                                let aElement: Element = try? element
+                                    .getElementsByTag("a")
+                                    .first(),
+                                let imgElement: Element = try? element
+                                    .getElementsByTag("img")
+                                    .first(),
+                                let href: String = try? aElement.attr("href"),
+                                let documentURL: URL = .init(string: href),
+                                let title: String = try? imgElement.attr("alt")
+                            else {
+                                logUnexpectedParsingBehavior()
+                                return
+                            }
+                            
+                            let thumbnailImageURL: URL?
+                            if let src: String = try? imgElement.attr("src") {
+                                thumbnailImageURL = .init(string: src)
+                            } else {
+                                logUnexpectedParsingBehavior()
+                                thumbnailImageURL = nil
+                            }
+                            
+                            items.append(
+                                .init(
+                                    title: title,
+                                    description: nil,
+                                    thumbnailImageURL: thumbnailImageURL,
+                                    documentURL: documentURL,
+                                    date: nil,
+                                    author: nil
+                                )
+                            )
+                        }
+                }
+            
+            if !items.isEmpty {
+                sections.append(.init(title: nil, badgeText: nil, newsItems: items))
+            } else {
+                // 새벽일 경우 당일 날짜의 뉴스가 없을 수 있음 - 이전 날짜나 date를 비울 것
+                throw SPError.noAvailableNewsForSpecifiedDate
+            }
+        }
+        
+        //
+        
+        if let reviewListElements: Elements = try? document.getElementsByClass("review_list") {
+            reviewListElements
+                .forEach { element in
+                    guard let bdElements: Elements = try? element.getElementsByClass("bd") else {
+                        logUnexpectedParsingBehavior()
+                        return
+                    }
+                    
+                    var items: [JtbcNewsItem] = []
+                    
+                    bdElements
+                        .forEach { element in
+                            guard let liElements: Elements = try? element.getElementsByTag("li") else {
+                                logUnexpectedParsingBehavior()
+                                return
+                            }
+                            
+                            let results: [JtbcNewsItem] = liElements
+                                .compactMap { element -> JtbcNewsItem? in
+                                    guard
+                                        let rtElement: Element = try? element
+                                            .getElementsByClass("rt")
+                                            .first(),
+                                        let rtAElement: Element = try? rtElement
+                                            .getElementsByTag("a")
+                                            .first(),
+                                        let href: String = try? rtAElement.attr("href"),
+                                        let documentURL: URL = .init(string: href)
+                                    else {
+                                        logUnexpectedParsingBehavior()
+                                        return nil
+                                    }
+                                    
+                                    let title: String = rtAElement.ownText()
+                                    
+                                    let author: String?
+                                    if let nameClassElement: Element = try? rtElement
+                                        .getElementsByClass("name")
+                                        .first() {
+                                        author = nameClassElement.ownText()
+                                    } else {
+                                        logUnexpectedParsingBehavior()
+                                        author = nil
+                                    }
+                                    
+                                    let thumbnailImageURL: URL?
+                                    if
+                                        let ltElement: Element = try? element
+                                            .getElementsByClass("lt")
+                                            .first(),
+                                        let ltImgElement: Element = try? ltElement
+                                            .getElementsByTag("img")
+                                            .first(),
+                                        let src: String = try? ltImgElement.attr("src")
+                                    {
+                                        thumbnailImageURL = .init(string: src)
+                                    } else {
+                                        logUnexpectedParsingBehavior()
+                                        thumbnailImageURL = nil
+                                    }
+                                    
+                                    //
+                                    
+                                    return .init(
+                                        title: title,
+                                        description: nil,
+                                        thumbnailImageURL: thumbnailImageURL,
+                                        documentURL: documentURL,
+                                        date: nil,
+                                        author: author
+                                    )
+                                }
+                            
+                            //
+                            
+                            items.append(contentsOf: results)
+                        }
+                    
+                    //
+                    
+                    guard !items.isEmpty else {
+                        return
+                    }
+                    
+                    let sectionTitle: String?
+                    if
+                        let hdElement: Element = try? element
+                            .getElementsByClass("hd")
+                            .first(),
+                        let h4Element: Element = try? hdElement
+                            .getElementsByTag("h4")
+                            .first()
+                    {
+                        sectionTitle = h4Element.ownText()
+                    } else {
+                        sectionTitle = nil
+                    }
+                    
+                    sections.append(
+                        .init(
+                            title: sectionTitle,
+                            badgeText: nil,
+                            newsItems: items
+                        )
+                    )
+                }
+                                
+        }
+        
+        //
+        
+        return .init(
+            hasMorePage: true,
+            sections: sections
+        )
     }
     
-    private func newsSectionsForTimelineIssueParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
-        fatalError()
-    }
-    
-    private func newsSectionsForFactCheckParsingStrategy(for newsCategory: JtbcNewsCategory, page: Int?, date: Date?) async throws -> JtbcNewsResult {
-        fatalError()
-    }
-    
-    private func document(for urlComponents: URLComponents) async throws -> Document {
+    private func document(from newsCategory: JtbcNewsCategory) async throws -> Document {
         let configuration: URLSessionConfiguration = .ephemeral
         let session: URLSession = URLSession(configuration: configuration)
         
-        guard let url: URL = urlComponents.url else {
+        guard let url: URL = newsCategory.urlComponents.url else {
             throw SPError.unexpectedNil
         }
+        
+        log.debug(url)
         
         var request: URLRequest = .init(url: url)
         request.httpMethod = "GET"

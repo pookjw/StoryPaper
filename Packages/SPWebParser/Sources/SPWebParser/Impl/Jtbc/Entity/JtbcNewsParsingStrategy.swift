@@ -5,6 +5,4 @@ enum JtbcNewsParsingStrategy {
     case list
     case index
     case newsReplay
-    case timelineIssue
-    case factCheck
 }

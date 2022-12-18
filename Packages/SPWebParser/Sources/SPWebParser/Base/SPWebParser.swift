@@ -5,8 +5,8 @@ public protocol SPWebParser {
     associatedtype NewsResult: SPNewsResult
     associatedtype NewsCategory: SPNewsCatetory
     
-    func newsSectionsForHome(page: Int?, date: Date?) async throws -> NewsResult
-    func newsSections(for newsCategory: NewsCategory, page: Int?, date: Date?) async throws -> NewsResult
+    func newsResultForHome() async throws -> NewsResult
+    func newsResult(from newsCategory: NewsCategory) async throws -> NewsResult
     
     func logUnexpectedParsingBehavior(file: String, function: String, line: Int)
 }
