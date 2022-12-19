@@ -32,7 +32,7 @@ extension JtbcNewsWebParser: SPWebParser {
     }
     
     private func newsResultForDefaultParsingStrategy(from document: Document) async throws -> JtbcNewsResult {
-        var sections: [JtbcNewsSection] = []
+        var sections: [JtbcNewsSection] = .init()
         
         //
         
@@ -122,7 +122,7 @@ extension JtbcNewsWebParser: SPWebParser {
                 sectionTitle = nil
             }
             
-            var todayNewsItems: [JtbcNewsItem] = []
+            var todayNewsItems: [JtbcNewsItem] = .init()
             
             if let imgElements: Elements = try? conTodayNewsElement.getElementsByClass("img") {
                 imgElements
@@ -254,7 +254,7 @@ extension JtbcNewsWebParser: SPWebParser {
                     
                     //
                     
-                    var items: [JtbcNewsItem] = []
+                    var items: [JtbcNewsItem] = .init()
                     
                     if let imgElements: Elements = try? element
                         .getElementsByClass("feed_img") {
@@ -587,7 +587,7 @@ extension JtbcNewsWebParser: SPWebParser {
     }
     
     private func newsResultForIndexParsingStrategy(from document: Document) async throws -> JtbcNewsResult {
-        var sections: [JtbcNewsSection] = []
+        var sections: [JtbcNewsSection] = .init()
         
         //
         
@@ -602,7 +602,7 @@ extension JtbcNewsWebParser: SPWebParser {
                 sectionTitle = nil
             }
             
-            var items: [JtbcNewsItem] = []
+            var items: [JtbcNewsItem] = .init()
             let handleNewsAreaElements: (Elements) -> Void = { elements in
                 elements
                     .forEach { element in
@@ -896,10 +896,10 @@ extension JtbcNewsWebParser: SPWebParser {
     }
     
     private func newsResultForNewsReplayParsingStrategy(from document: Document) async throws -> JtbcNewsResult {
-        var sections: [JtbcNewsSection] = []
+        var sections: [JtbcNewsSection] = .init()
         
         if let reviewHeadlineElement: Elements = try? document.getElementsByClass("review_headline_v2") {
-            var items: [JtbcNewsItem] = []
+            var items: [JtbcNewsItem] = .init()
             
             reviewHeadlineElement
                 .forEach { element in
@@ -963,7 +963,7 @@ extension JtbcNewsWebParser: SPWebParser {
                         return
                     }
                     
-                    var items: [JtbcNewsItem] = []
+                    var items: [JtbcNewsItem] = .init()
                     
                     bdElements
                         .forEach { element in
