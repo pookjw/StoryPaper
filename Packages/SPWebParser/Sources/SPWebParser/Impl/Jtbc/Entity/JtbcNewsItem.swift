@@ -1,10 +1,10 @@
 import Foundation
 
-public struct JtbcNewsItem: SPNewsItem {
-    public let title: String
-    public let description: String?
-    public let thumbnailImageURL: URL?
-    public let documentURL: URL
-    public let date: Date?
-    public let author: String?
+struct JtbcNewsItem: SPNewsItem {
+    let title: String
+    let description: String?
+    let thumbnailImageURL: URL?
+    let documentURL: URL
+    let date: Date?
+    let author: String?
 }

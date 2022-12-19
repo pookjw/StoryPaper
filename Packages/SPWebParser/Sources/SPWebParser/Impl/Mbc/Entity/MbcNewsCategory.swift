@@ -2,27 +2,27 @@ import Foundation
 import SPError
 import SPLogger
 
-public enum MbcNewsCategory: SPNewsCatetory {
+enum MbcNewsCategory: SPNewsCatetory {
     case home
 
-    case newsDesk(day: Date)
-    case nwtoday(day: Date)
-    case nw1400(day: Date)
-    case newsflash(year: Int)
-    case nw930(day: Date)
-    case nw1200(day: Date)
-    case nw1700(day: Date)
-    case straight(year: Int)
-    case unity(year: Int)
+    case newsDesk
+    case nwtoday
+    case nw1400
+    case newsflash
+    case nw930
+    case nw1200
+    case nw1700
+    case straight
+    case unity
     
-    case politics(day: Date)
-    case society(day: Date)
-    case world(day: Date)
-    case econo(day: Date)
-    case culture(day: Date)
-    case network(year: Int)
-    case sports(day: Date)
-    case enter(day: Date)
+    case politics
+    case society
+    case world
+    case econo
+    case culture
+    case network
+    case sports
+    case enter
     case groupnews
     case politicstime
     case todaythisnw
@@ -44,10 +44,10 @@ public enum MbcNewsCategory: SPNewsCatetory {
     case pyhotline
     case maxmlb
     
-    case mbic(year: Int)
-    case _14f(year: Int)
+    case mbic
+    case _14f
 
-    public var text: String {
+    var text: String {
         let key: String
         
         switch self {
@@ -134,123 +134,176 @@ public enum MbcNewsCategory: SPNewsCatetory {
         return NSLocalizedString(key, tableName: "MbcNewsCategory", bundle: .module, comment: .init())
     }
     
-    public var requestDateComponent: SPNewsRequestDateComponent? {
+    var requestValues: [SPNewsCategoryRequestValue] {
         switch self {
-        case .newsDesk, .nwtoday, .nw1400, .nw930, .nw1200, .nw1700, .politics, .society, .world, .econo, .culture, .sports, .enter:
-            return .day
-        case .mbic, .newsflash, .straight, .unity, .network:
-            return .year
-        case .home, .groupnews, .politicstime, .todaythisnw, .streeteco, .ahplus, .roadman, .newsinsight, .turnedout, .worldnow, .otbt, .detecm, .kindreporters, .cereport, .lmkeco, .seochom, .vod365, .issue12, .pyhotline, .maxmlb, ._14f:
-            return nil
+        case .newsDesk,
+                .nwtoday,
+                .nw1400,
+                .nw930,
+                .nw1200,
+                .nw1700,
+                .politics,
+                .society,
+                .world,
+                .econo,
+                .culture,
+                .sports,
+                .enter:
+            return [.day(nil)]
+        case .mbic,
+                .newsflash,
+                .straight,
+                .unity,
+                .network:
+            return [.year(nil)]
+        case .home,
+                .groupnews,
+                .politicstime,
+                .todaythisnw,
+                .streeteco,
+                .ahplus,
+                .roadman,
+                .newsinsight,
+                .turnedout,
+                .worldnow,
+                .otbt,
+                .detecm,
+                .kindreporters,
+                .cereport,
+                .lmkeco,
+                .seochom,
+                .vod365,
+                .issue12,
+                .pyhotline,
+                .maxmlb,
+                ._14f:
+            return []
         }
     }
+    
+    func urlComponents(requestFields: Set<SPNewsCategoryRequestValue>) async throws -> URLComponents {
+        let path: String
 
-    var urlComponents: URLComponents {
-        get async throws {
-            let path: String
-
-            switch self {
-            case .home:
-                path = "/operate/common/main/topnews/headline_news.js"
-            case let .newsDesk(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/replay/\(year)/nwdesk/", day: day)
-            case let .nwtoday(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/replay/\(year)/nwtoday/", day: day)
-            case let .nw1400(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/replay/\(year)/nw1400/", day: day)
-            case let .newsflash(year):
-                path = "/replay/newsflash/\(year).js"
-            case let .nw930(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/replay/\(year)/nw930/", day: day)
-            case let .nw1200(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/replay/\(year)/nw1200/", day: day)
-            case let .nw1700(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/replay/\(year)/nw1700/", day: day)
-            case let .straight(year):
-                path = "/replay/straight/\(year).js"
-            case let .unity(year):
-                path = "/replay/unity/\(year).js"
-            case let .politics(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/news/\(year)/politics/", day: day)
-            case let .society(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/news/\(year)/society/", day: day)
-            case let .world(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/news/\(year)/world/", day: day)
-            case let .econo(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/news/\(year)/econo/", day: day)
-            case let .culture(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/news/\(year)/culture/", day: day)
-            case let .network(year):
-                path = "/news/network/\(year).js"
-            case let .sports(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/news/\(year)/sports/", day: day)
-            case let .enter(day):
-                let year: Int = try day.year
-                path = try await pageAndDayPath(from: "/news/\(year)/enter/", day: day)
-            case .groupnews:
-                path = "/newszoomin/groupnews/index.js"
-            case .politicstime:
-                path = "/newszoomin/politicstime/index.js"
-            case .todaythisnw:
-                path = "/newszoomin/todaythisnw/index.js"
-            case .streeteco:
-                path = "/newszoomin/streeteco/index.js"
-            case .ahplus:
-                path = "/newszoomin/ahplus/index.js"
-            case .roadman:
-                path = "/newszoomin/roadman/index.js"
-            case .newsinsight:
-                path = "/newszoomin/roadman/index.js"
-            case .turnedout:
-                path = "/newszoomin/turnedout/index.js"
-            case .worldnow:
-                path = "/newszoomin/worldnow/index.js"
-            case .otbt:
-                path = "/newszoomin/otbt/index.js"
-            case .detecm:
-                path = "/newszoomin/detecm/index.js"
-            case .kindreporters:
-                path = "/newszoomin/kindreporters/index.js"
-            case .cereport:
-                path = "/newszoomin/cereport/index.js"
-            case .lmkeco:
-                path = "/newszoomin/lmkeco/index.js"
-            case .seochom:
-                path = "/newszoomin/seochom/index.js"
-            case .vod365:
-                path = "/newszoomin/vod365/index.js"
-            case .issue12:
-                path = "/newszoomin/issue12/index.js"
-            case .pyhotline:
-                path = "/newszoomin/pyhotline/index.js"
-            case .maxmlb:
-                path = "/newszoomin/maxmlb/index.js"
-            case let .mbic(year):
-                path = "/original/mbig/\(year).js"
-            case let ._14f(year):
-                path = "/original/14f/\(year).js"
-            }
-            
-            var urlComponents: URLComponents = .init()
-            
-            urlComponents.scheme = "https"
-            urlComponents.host = "imnews.imbc.com"
-            urlComponents.path = path
-            
-            return urlComponents
+        switch self {
+        case .home:
+            path = "/operate/common/main/topnews/headline_news.js"
+        case .newsDesk:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/replay/\(year)/nwdesk/", day: day)
+        case .nwtoday:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/replay/\(year)/nwtoday/", day: day)
+        case .nw1400:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/replay/\(year)/nw1400/", day: day)
+        case .newsflash:
+            let year: Int! = SPNewsCategoryRequestValue.year(from: requestFields)
+            path = "/replay/newsflash/\(String(year)).js"
+        case .nw930:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/replay/\(year)/nw930/", day: day)
+        case .nw1200:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/replay/\(year)/nw1200/", day: day)
+        case .nw1700:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/replay/\(year)/nw1700/", day: day)
+        case .straight:
+            let year: Int! = SPNewsCategoryRequestValue.year(from: requestFields)
+            path = "/replay/straight/\(String(year)).js"
+        case .unity:
+            let year: Int! = SPNewsCategoryRequestValue.year(from: requestFields)
+            path = "/replay/unity/\(String(year)).js"
+        case .politics:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/news/\(year)/politics/", day: day)
+        case .society:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/news/\(year)/society/", day: day)
+        case .world:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/news/\(year)/world/", day: day)
+        case .econo:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/news/\(year)/econo/", day: day)
+        case .culture:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/news/\(year)/culture/", day: day)
+        case .network:
+            let year: Int! = SPNewsCategoryRequestValue.year(from: requestFields)
+            path = "/news/network/\(year!).js"
+        case .sports:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/news/\(year)/sports/", day: day)
+        case .enter:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            let year: Int = try day.year
+            path = try await pageAndDayPath(from: "/news/\(year)/enter/", day: day)
+        case .groupnews:
+            path = "/newszoomin/groupnews/index.js"
+        case .politicstime:
+            path = "/newszoomin/politicstime/index.js"
+        case .todaythisnw:
+            path = "/newszoomin/todaythisnw/index.js"
+        case .streeteco:
+            path = "/newszoomin/streeteco/index.js"
+        case .ahplus:
+            path = "/newszoomin/ahplus/index.js"
+        case .roadman:
+            path = "/newszoomin/roadman/index.js"
+        case .newsinsight:
+            path = "/newszoomin/roadman/index.js"
+        case .turnedout:
+            path = "/newszoomin/turnedout/index.js"
+        case .worldnow:
+            path = "/newszoomin/worldnow/index.js"
+        case .otbt:
+            path = "/newszoomin/otbt/index.js"
+        case .detecm:
+            path = "/newszoomin/detecm/index.js"
+        case .kindreporters:
+            path = "/newszoomin/kindreporters/index.js"
+        case .cereport:
+            path = "/newszoomin/cereport/index.js"
+        case .lmkeco:
+            path = "/newszoomin/lmkeco/index.js"
+        case .seochom:
+            path = "/newszoomin/seochom/index.js"
+        case .vod365:
+            path = "/newszoomin/vod365/index.js"
+        case .issue12:
+            path = "/newszoomin/issue12/index.js"
+        case .pyhotline:
+            path = "/newszoomin/pyhotline/index.js"
+        case .maxmlb:
+            path = "/newszoomin/maxmlb/index.js"
+        case .mbic:
+            let year: Int! = SPNewsCategoryRequestValue.year(from: requestFields)
+            path = "/original/mbig/\(String(year)).js"
+        case ._14f:
+            let year: Int! = SPNewsCategoryRequestValue.year(from: requestFields)
+            path = "/original/14f/\(String(year)).js"
         }
+        
+        var urlComponents: URLComponents = .init()
+        
+        urlComponents.scheme = "https"
+        urlComponents.host = "imnews.imbc.com"
+        urlComponents.path = path
+        
+        return urlComponents
     }
     
     private func pageAndDayPath(from path: String, day: Date) async throws -> String {

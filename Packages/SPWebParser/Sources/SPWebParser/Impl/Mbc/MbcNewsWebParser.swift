@@ -7,15 +7,16 @@ public final class MbcNewsWebParser {
 }
 
 extension MbcNewsWebParser: SPWebParser {
-    public typealias NewsResult = MbcNewsResult
-    public typealias NewsCategory = MbcNewsCategory
-    
-    public func newsResultForHome() async throws -> MbcNewsResult {
-        try await newsResult(from: .home)
+    public func newsResultForHome(requestValues: Set<SPNewsCategoryRequestValue>) async throws -> any SPNewsResult {
+        try await newsResult(from: MbcNewsCategory.home, requestValues: requestValues)
     }
     
-    public func newsResult(from newsCategory: MbcNewsCategory) async throws -> MbcNewsResult {
-        guard let url: URL = try await newsCategory.urlComponents.url else {
+    public func newsResult(from newsCategory: any SPNewsCatetory, requestValues: Set<SPNewsCategoryRequestValue>) async throws -> any SPNewsResult {
+        guard let newsCategory: MbcNewsCategory = newsCategory as? MbcNewsCategory else {
+            throw SPError.typeMismatch
+        }
+        
+        guard let url: URL = try await newsCategory.urlComponents(requestFields: requestValues).url else {
             throw SPError.unexpectedNil
         }
         

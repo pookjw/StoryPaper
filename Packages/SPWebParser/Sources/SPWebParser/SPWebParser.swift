@@ -2,11 +2,8 @@ import Foundation
 import SPLogger
 
 public protocol SPWebParser {
-    associatedtype NewsResult: SPNewsResult
-    associatedtype NewsCategory: SPNewsCatetory
-    
-    func newsResultForHome() async throws -> NewsResult
-    func newsResult(from newsCategory: NewsCategory) async throws -> NewsResult
+    func newsResultForHome(requestValues: Set<SPNewsCategoryRequestValue>) async throws -> any SPNewsResult
+    func newsResult(from newsCategory: any SPNewsCatetory, requestValues: Set<SPNewsCategoryRequestValue>) async throws -> any SPNewsResult
     
     func logUnexpectedParsingBehavior(file: String, function: String, line: Int)
 }

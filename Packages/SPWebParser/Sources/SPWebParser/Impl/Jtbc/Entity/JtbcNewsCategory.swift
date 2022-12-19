@@ -1,9 +1,9 @@
 import Foundation
 
-public enum JtbcNewsCategory: SPNewsCatetory {
+enum JtbcNewsCategory: SPNewsCatetory {
     case home
     
-    case breakingNews((page: Int, day: Date))
+    case breakingNews
     case politics
     case economy
     case society
@@ -13,9 +13,9 @@ public enum JtbcNewsCategory: SPNewsCatetory {
     case sports
     case weather
     
-    case jtbcNewsroom(Date)
-    case sangamdongClass(Date)
-    case politicalDepartmentMeeting(Date)
+    case jtbcNewsroom
+    case sangamdongClass
+    case politicalDepartmentMeeting
     
     public var text: String {
         let key: String
@@ -52,16 +52,18 @@ public enum JtbcNewsCategory: SPNewsCatetory {
         return NSLocalizedString(key, tableName: "JtbcNewsCategory", bundle: .module, comment: .init())
     }
     
-    public var requestDateComponent: SPNewsRequestDateComponent? {
+    var requestValues: [SPNewsCategoryRequestValue] {
         switch self {
-        case .breakingNews, .jtbcNewsroom, .sangamdongClass, .politicalDepartmentMeeting:
-            return .day
+        case .breakingNews:
+            return [.page(nil), .day(nil)]
+        case .jtbcNewsroom, .sangamdongClass, .politicalDepartmentMeeting:
+            return [.day(nil)]
         default:
-            return nil
+            return []
         }
     }
     
-    var urlComponents: URLComponents {
+    func urlComponents(requestFields: Set<SPNewsCategoryRequestValue>) -> URLComponents {
         let path: String
         let queryItems: [URLQueryItem]?
         
@@ -69,12 +71,15 @@ public enum JtbcNewsCategory: SPNewsCatetory {
         case .home:
             path = "/default.aspx"
             queryItems = nil
-        case let .breakingNews(data):
+        case .breakingNews:
+            let page: Int! = SPNewsCategoryRequestValue.page(from: requestFields)
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            
             path = "/section/list.aspx"
             queryItems = [
                 .init(name: "scode", value: nil),
-                .init(name: "pgi", value: String(data.page)),
-                .init(name: "pdate", value: dateFormatter.string(from: data.day))
+                .init(name: "pgi", value: String(page)),
+                .init(name: "pdate", value: dateFormatter.string(from: day))
             ]
         case .politics:
             path = "/section/index.aspx"
@@ -100,19 +105,25 @@ public enum JtbcNewsCategory: SPNewsCatetory {
         case .weather:
             path = "/section/index.aspx"
             queryItems = [.init(name: "scode", value: "80")]
-        case let .jtbcNewsroom(day):
+        case .jtbcNewsroom:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            
             path = "/Replay/news_replay.aspx"
             queryItems = [
                 .init(name: "fcode", value: "PR10000403"),
                 .init(name: "strSearchDate", value: dateFormatter.string(from: day))
             ]
-        case let .sangamdongClass(day):
+        case .sangamdongClass:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            
             path = "/Replay/news_replay.aspx"
             queryItems = [
                 .init(name: "fcode", value: "PR10010250"),
                 .init(name: "strSearchDate", value: dateFormatter.string(from: day))
             ]
-        case let .politicalDepartmentMeeting(day):
+        case .politicalDepartmentMeeting:
+            let day: Date! = SPNewsCategoryRequestValue.day(from: requestFields)
+            
             path = "/Replay/news_replay.aspx"
             queryItems = [
                 .init(name: "fcode", value: "PR10010301"),

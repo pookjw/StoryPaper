@@ -3,20 +3,21 @@ import SPError
 import SPLogger
 import SwiftSoup
 
-public final class JtbcNewsWebParser {
+final class JtbcNewsWebParser {
     
 }
 
 extension JtbcNewsWebParser: SPWebParser {
-    public typealias NewsResult = JtbcNewsResult
-    public typealias NewsCategory = JtbcNewsCategory
-    
-    public func newsResultForHome() async throws -> JtbcNewsResult {
-        try await newsResult(from: .home)
+    func newsResultForHome(requestValues: Set<SPNewsCategoryRequestValue>) async throws -> any SPNewsResult {
+        try await newsResult(from: JtbcNewsCategory.home, requestValues: requestValues)
     }
     
-    public func newsResult(from newsCategory: JtbcNewsCategory) async throws -> JtbcNewsResult {
-        let document: Document = try await document(from: newsCategory)
+    func newsResult(from newsCategory: any SPNewsCatetory, requestValues: Set<SPNewsCategoryRequestValue>) async throws -> any SPNewsResult {
+        guard let newsCategory: JtbcNewsCategory = newsCategory as? JtbcNewsCategory else {
+            throw SPError.typeMismatch
+        }
+        
+        let document: Document = try await document(from: newsCategory, requestValues: requestValues)
         
         switch newsCategory.parsingStrategy {
         case .`default`:
@@ -1071,11 +1072,11 @@ extension JtbcNewsWebParser: SPWebParser {
         )
     }
     
-    private func document(from newsCategory: JtbcNewsCategory) async throws -> Document {
+    private func document(from newsCategory: JtbcNewsCategory, requestValues: Set<SPNewsCategoryRequestValue>) async throws -> Document {
         let configuration: URLSessionConfiguration = .ephemeral
         let session: URLSession = URLSession(configuration: configuration)
         
-        guard let url: URL = newsCategory.urlComponents.url else {
+        guard let url: URL = newsCategory.urlComponents(requestFields: requestValues).url else {
             throw SPError.unexpectedNil
         }
         

@@ -1,9 +1,7 @@
 import Foundation
 
-public struct JtbcNewsSection: SPNewsSection {
-    public typealias NewsItem = JtbcNewsItem
-    
-    public let title: String?
-    public let badgeText: String?
-    public let newsItems: [JtbcNewsItem]
+struct JtbcNewsSection: SPNewsSection {
+    let title: String?
+    let badgeText: String?
+    let newsItems: [JtbcNewsItem]
 }
