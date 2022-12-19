@@ -35,7 +35,7 @@ extension MbcNewsWebParser: SPWebParser {
         
         let homeData: MbcNewsHomeData = try decoder.decode(MbcNewsHomeData.self, from: data)
         
-        var sectionTitleAndItem: [String?: [MbcNewsItem]] = [:]
+        var sectionTitleAndItem: [String?: [MbcNewsItem]] = .init()
         
         homeData
             .data
@@ -84,7 +84,7 @@ extension MbcNewsWebParser: SPWebParser {
         
         let indexData: MbcNewsIndexData = try decoder.decode(MbcNewsIndexData.self, from: data)
         
-        var sectionTitleAndItem: [String?: [MbcNewsItem]] = [:]
+        var sectionTitleAndItem: [String?: [MbcNewsItem]] = .init()
         
         //
         
