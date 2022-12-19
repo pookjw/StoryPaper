@@ -40,11 +40,11 @@ actor CategoriesViewModel {
         }
     }
     
-    func newsAndCategory(from indexPath: IndexPath) throws -> (SPNews, any SPNewsCatetory) {
+    func newsAndCategory(from indexPath: IndexPath) async throws -> (SPNews, any SPNewsCatetory) {
         let snapshot: NSDiffableDataSourceSectionSnapshot<CategoriesItemModel> = dataSource.snapshot(for: .main)
         
-        let child: CategoriesItemModel = snapshot.items[indexPath.item]
         guard
+            let child: CategoriesItemModel = await dataSource.itemIdentifier(for: indexPath),
             let parent: CategoriesItemModel = snapshot.parent(of: child),
             case let .news(news) = parent,
             case let .category(category) = child
