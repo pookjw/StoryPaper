@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SafariServices
 import SPWebParser
 import SPLogger
 
@@ -108,14 +109,17 @@ final class ArticlesViewController: UIViewController {
 extension ArticlesViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         openDocumentTask?.cancel()
-        openDocumentTask = .detached { [weak collectionView, viewModel] in
+        openDocumentTask = .detached { [weak self, viewModel] in
             guard let item: ArticlesItemModel = try await viewModel?.item(from: indexPath) else {
                 log.error("An item was not found.")
                 return
             }
             
-            await MainActor.run { [weak collectionView] in
-                collectionView?.window?.windowScene?.open(item.documentURL, options: nil)
+            await MainActor.run { [weak self] in
+                let configuration: SFSafariViewController.Configuration = .init()
+                configuration.entersReaderIfAvailable = true
+                let viewController: SFSafariViewController = .init(url: item.documentURL, configuration: configuration)
+                self?.present(viewController, animated: true)
             }
         }
     }

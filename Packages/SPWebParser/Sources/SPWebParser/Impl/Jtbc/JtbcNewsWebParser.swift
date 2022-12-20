@@ -60,7 +60,9 @@ extension JtbcNewsWebParser: SPWebParser {
                     }
                     
                     guard
-                        let documentURLString: String = try? dlAElement.attr("href"),
+                        let documentURLString: String = try? dlAElement
+                            .attr("href")
+                            .removingPercentEncoding,
                         let documentURL: URL = .init(string: documentURLString)
                     else {
                         logUnexpectedParsingBehavior()
@@ -140,7 +142,8 @@ extension JtbcNewsWebParser: SPWebParser {
                                 })
                                 .first,
                             let documentURLString: String = try? aElement
-                                .attr("href"),
+                                .attr("href")
+                                .removingPercentEncoding,
                             let documentURL: URL = .init(string: documentURLString)
                         else {
                             logUnexpectedParsingBehavior()
@@ -180,7 +183,8 @@ extension JtbcNewsWebParser: SPWebParser {
                                 .getElementsByTag("a")
                                 .first(),
                             let documentURLString: String = try? aElement
-                                .attr("href"),
+                                .attr("href")
+                                .removingPercentEncoding,
                             let documentURL: URL = .init(string: documentURLString)
                         else {
                             logUnexpectedParsingBehavior()
@@ -268,7 +272,9 @@ extension JtbcNewsWebParser: SPWebParser {
                                 aElements
                                     .forEach { element in
                                         guard
-                                            let documentURLString: String = try? element.attr("href"),
+                                            let documentURLString: String = try? element
+                                                .attr("href")
+                                                .removingPercentEncoding,
                                             let documentURL: URL = .init(string: documentURLString)
                                         else {
                                             logUnexpectedParsingBehavior()
@@ -324,7 +330,8 @@ extension JtbcNewsWebParser: SPWebParser {
                                                 .getElementsByTag("a")
                                                 .first(),
                                             let documentURLString: String = try? aElement
-                                                .attr("href"),
+                                                .attr("href")
+                                                .removingPercentEncoding,
                                             let documentURL: URL = .init(string: documentURLString)
                                         else {
                                             logUnexpectedParsingBehavior()
@@ -365,7 +372,9 @@ extension JtbcNewsWebParser: SPWebParser {
                                         aElement
                                             .forEach { element in
                                                 guard
-                                                    let href: String = try? element.attr("href"),
+                                                    let href: String = try? element
+                                                        .attr("href")
+                                                        .removingPercentEncoding,
                                                     let documentURL: URL = .init(string: href),
                                                     let strongElement: Element = try? element
                                                         .getElementsByTag("strong")
@@ -481,7 +490,7 @@ extension JtbcNewsWebParser: SPWebParser {
                 documentURLComponents.host = "news.jtbc.co.kr"
                 documentURLComponents.path = href
                 
-                guard let documentURL: URL = documentURLComponents.url else {
+                guard let documentURL: URL = documentURLComponents.url(removingPercentEncoding: true) else {
                     logUnexpectedParsingBehavior()
                     return nil
                 }
@@ -625,7 +634,7 @@ extension JtbcNewsWebParser: SPWebParser {
                         urlComponents.host = "news.jtbc.co.kr"
                         urlComponents.path = href
                         
-                        guard let documentURL: URL = urlComponents.url else {
+                        guard let documentURL: URL = urlComponents.url(removingPercentEncoding: true) else {
                             self.logUnexpectedParsingBehavior()
                             return
                         }
@@ -790,7 +799,7 @@ extension JtbcNewsWebParser: SPWebParser {
                             urlComponents.host = "news.jtbc.co.kr"
                             urlComponents.path = href
                             
-                            guard let documentURL: URL = .init(string: href) else {
+                            guard let documentURL: URL = urlComponents.url(removingPercentEncoding: true) else {
                                 logUnexpectedParsingBehavior()
                                 return nil
                             }
@@ -916,7 +925,9 @@ extension JtbcNewsWebParser: SPWebParser {
                                 let imgElement: Element = try? element
                                     .getElementsByTag("img")
                                     .first(),
-                                let href: String = try? aElement.attr("href"),
+                                let href: String = try? aElement
+                                    .attr("href")
+                                    .removingPercentEncoding,
                                 let documentURL: URL = .init(string: href),
                                 let title: String = try? imgElement.attr("alt")
                             else {
@@ -981,7 +992,9 @@ extension JtbcNewsWebParser: SPWebParser {
                                         let rtAElement: Element = try? rtElement
                                             .getElementsByTag("a")
                                             .first(),
-                                        let href: String = try? rtAElement.attr("href"),
+                                        let href: String = try? rtAElement
+                                            .attr("href")
+                                            .removingPercentEncoding,
                                         let documentURL: URL = .init(string: href)
                                     else {
                                         logUnexpectedParsingBehavior()
