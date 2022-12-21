@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:SPDataCacheStore">
+   </FileRef>
+   <FileRef
       location = "group:Packages/SPLogger">
    </FileRef>
    <FileRef

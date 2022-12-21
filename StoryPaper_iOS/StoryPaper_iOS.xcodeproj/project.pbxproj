@@ -22,6 +22,7 @@
 		4F29DBD12950B53D00B05E1C /* ArticlesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F29DBD02950B53D00B05E1C /* ArticlesViewModel.swift */; };
 		4F29DBD32950B54600B05E1C /* ArticlesSectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F29DBD22950B54600B05E1C /* ArticlesSectionModel.swift */; };
 		4F29DBD52950B55000B05E1C /* ArticlesItemModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F29DBD42950B55000B05E1C /* ArticlesItemModel.swift */; };
+		4F29DBEA29532CC000B05E1C /* SPDataCacheStore in Frameworks */ = {isa = PBXBuildFile; productRef = 4F29DBE929532CC000B05E1C /* SPDataCacheStore */; };
 		4F4CD7C0294860AA0061689D /* SPWebParser in Frameworks */ = {isa = PBXBuildFile; productRef = 4F4CD7BF294860AA0061689D /* SPWebParser */; };
 		4F6EC7DB294F55230082A9D3 /* StoryPaper_iOS_UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6EC7DA294F55230082A9D3 /* StoryPaper_iOS_UITests.swift */; };
 		4F6EC7DD294F55230082A9D3 /* StoryPaper_iOS_UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F6EC7DC294F55230082A9D3 /* StoryPaper_iOS_UITestsLaunchTests.swift */; };
@@ -81,6 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F29DBEA29532CC000B05E1C /* SPDataCacheStore in Frameworks */,
 				4F4CD7C0294860AA0061689D /* SPWebParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -239,6 +241,7 @@
 			name = StoryPaper_iOS;
 			packageProductDependencies = (
 				4F4CD7BF294860AA0061689D /* SPWebParser */,
+				4F29DBE929532CC000B05E1C /* SPDataCacheStore */,
 			);
 			productName = StoryPaper_iOS;
 			productReference = 4F21D1672947721F001E8853 /* StoryPaper_iOS.app */;
@@ -733,6 +736,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4F29DBE929532CC000B05E1C /* SPDataCacheStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SPDataCacheStore;
+		};
 		4F4CD7BF294860AA0061689D /* SPWebParser */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SPWebParser;
