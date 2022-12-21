@@ -129,7 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				4F6EC7E3294F56260082A9D3 /* Application */,
-				4F6EC7E4294F56460082A9D3 /* View */,
+				4F6EC7E4294F56460082A9D3 /* Views */,
 			);
 			path = StoryPaper_iOS;
 			sourceTree = "<group>";
@@ -181,14 +181,14 @@
 			path = Application;
 			sourceTree = "<group>";
 		};
-		4F6EC7E4294F56460082A9D3 /* View */ = {
+		4F6EC7E4294F56460082A9D3 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				4F6EC7E5294F564D0082A9D3 /* Main */,
 				4F6EC7EC294F57AA0082A9D3 /* Categories */,
 				4F6EC7E9294F577C0082A9D3 /* Articles */,
 			);
-			path = View;
+			path = Views;
 			sourceTree = "<group>";
 		};
 		4F6EC7E5294F564D0082A9D3 /* Main */ = {
