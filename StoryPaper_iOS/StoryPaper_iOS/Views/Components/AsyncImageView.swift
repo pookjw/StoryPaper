@@ -52,7 +52,7 @@ final class AsyncImageView: UIImageView {
         {
             await MainActor.run { [weak self] in
                 self?.image = image
-                self?.currentImageURL = currentImageURL
+                self?.currentImageURL = url
                 self?.activityIndicatorView.stopAnimating()
             }
         } else {
@@ -80,7 +80,7 @@ final class AsyncImageView: UIImageView {
             
             await MainActor.run { [weak self] in
                 self?.image = image
-                self?.currentImageURL = currentImageURL
+                self?.currentImageURL = url
                 self?.activityIndicatorView.stopAnimating()
             }
             
