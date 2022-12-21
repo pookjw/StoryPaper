@@ -24,7 +24,7 @@ final class SPDataCacheStoreTests: XCTestCase {
         
         try await dataCacheStore.saveChanges()
         
-        let fetchedDataCache: SPDataCache = try await dataCacheStore.fetchDataCache(with: identity).first!
+        let fetchedDataCache: SPDataCache = try await dataCacheStore.fetchDataCache(with: identity).last!
         
         XCTAssertEqual(dataCache.identity, identity)
         XCTAssertEqual(dataCache.data, data)
