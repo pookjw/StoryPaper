@@ -67,22 +67,9 @@ final class ArticlesViewController: UIViewController {
             cell.contentConfiguration = contentConfiguration
         }
         
-        let headerRegistration: UICollectionView.SupplementaryRegistration<UICollectionViewListCell> = .init(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, elementKind, indexPath in
-            
-        }
-        
         let dataSource: UICollectionViewDiffableDataSource<ArticlesSectionModel, ArticlesItemModel> = .init(collectionView: collectionView) { collectionView, indexPath, itemIdentifier in
             let cell: UICollectionViewCell = collectionView.dequeueConfiguredReusableCell(using: largeCellRegistration, for: indexPath, item: itemIdentifier)
             return cell
-        }
-        
-        dataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
-            switch elementKind {
-            case UICollectionView.elementKindSectionHeader:
-                return collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
-            default:
-                return nil
-            }
         }
         
         return dataSource

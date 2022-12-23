@@ -19,21 +19,6 @@ final class ArticlesCollectionViewLayout: UICollectionViewCompositionalLayout {
         
         configuration.scrollDirection = .vertical
         configuration.interSectionSpacing = .zero
-        configuration.boundarySupplementaryItems = [
-            .init(
-                layoutSize: .init(
-                    widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .fractionalHeight(1.0)
-                ),
-                elementKind: NSStringFromClass(ArticlesCollectionHeaderView.self),
-                containerAnchor: .init(
-                    edges: [.top]
-                ),
-                itemAnchor: .init(
-                    edges: [.bottom]
-                )
-            )
-        ]
         
         self.init(
             sectionProvider: { [weak delegate] sectionIndex, environment in
