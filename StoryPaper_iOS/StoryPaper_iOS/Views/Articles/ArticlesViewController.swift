@@ -112,8 +112,4 @@ extension ArticlesViewController: ArticlesCollectionViewLayoutDelegate {
     func articlesCollectionViewLayoutNumberOfItems(at sectionIndex: Int) -> Int {
         return viewModel.numberOfItems[sectionIndex] ?? .zero
     }
-    
-    func articlesCollectionViewLayoutSectionSizeLayout(at sectionIndex: Int) -> ArticlesCollectionViewLayout.SectionSizeLayout {
-        return .orthogonal
-    }
 }
