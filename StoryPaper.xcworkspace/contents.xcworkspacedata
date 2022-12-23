@@ -16,10 +16,4 @@
    <FileRef
       location = "group:StoryPaper_iOS/StoryPaper_iOS.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:StoryPaper_tvOS/StoryPaper_tvOS.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:StoryPaper_macOS/StoryPaper_macOS.xcodeproj">
-   </FileRef>
 </Workspace>
