@@ -8,26 +8,15 @@
 import UIKit
 
 @MainActor
-protocol ArticlesCollectionViewLayoutDelegate: AnyObject {
-    func articlesCollectionViewLayoutNumberOfItems(at sectionIndex: Int) -> Int
-}
-
-@MainActor
 final class ArticlesCollectionViewLayout: UICollectionViewCompositionalLayout {
-    convenience init(delegate: ArticlesCollectionViewLayoutDelegate) {
+    convenience init() {
         let configuration: UICollectionViewCompositionalLayoutConfiguration = .init()
         
         configuration.scrollDirection = .vertical
         configuration.interSectionSpacing = .zero
         
         self.init(
-            sectionProvider: { [weak delegate] sectionIndex, environment in
-                guard let delegate: ArticlesCollectionViewLayoutDelegate else {
-                    return nil
-                }
-                
-                let itemsCount: Int = delegate.articlesCollectionViewLayoutNumberOfItems(at: sectionIndex)
-                
+            sectionProvider: { sectionIndex, environment in
                 let item: NSCollectionLayoutItem = .init(
                     layoutSize: .init(
                         widthDimension: .fractionalWidth(1.0),

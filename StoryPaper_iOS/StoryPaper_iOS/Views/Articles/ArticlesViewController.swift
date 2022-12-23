@@ -38,7 +38,7 @@ final class ArticlesViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        let collectionViewLayout: ArticlesCollectionViewLayout = .init(delegate: self)
+        let collectionViewLayout: ArticlesCollectionViewLayout = .init()
         let collectionView: UICollectionView = .init(frame: view.bounds, collectionViewLayout: collectionViewLayout)
         
         collectionView.delegate = self
@@ -92,11 +92,5 @@ extension ArticlesViewController: UICollectionViewDelegate {
                 self?.present(viewController, animated: true)
             }
         }
-    }
-}
-
-extension ArticlesViewController: ArticlesCollectionViewLayoutDelegate {
-    func articlesCollectionViewLayoutNumberOfItems(at sectionIndex: Int) -> Int {
-        return viewModel.numberOfItems[sectionIndex] ?? .zero
     }
 }
