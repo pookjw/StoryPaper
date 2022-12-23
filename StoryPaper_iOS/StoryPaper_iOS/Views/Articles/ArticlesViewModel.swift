@@ -11,6 +11,8 @@ import SPError
 import SPLogger
 
 actor ArticlesViewModel {
+    @MainActor private(set) var numberOfItems: [Int: Int] = [:]
+    
     private let dataSource: UICollectionViewDiffableDataSource<ArticlesSectionModel, ArticlesItemModel>
     
     init(dataSource: UICollectionViewDiffableDataSource<ArticlesSectionModel, ArticlesItemModel>) {
@@ -59,6 +61,22 @@ actor ArticlesViewModel {
                 snapshot.appendSections([section])
                 snapshot.appendItems(items, toSection: section)
             }
+        
+        //
+        
+        var numberOfItems: [Int: Int] = [:]
+        snapshot
+            .sectionIdentifiers
+            .enumerated()
+            .forEach { index, section in
+                numberOfItems[index] = snapshot.numberOfItems(inSection: section)
+            }
+        
+        await MainActor.run { [weak self, numberOfItems] in
+            self?.numberOfItems = numberOfItems
+        }
+        
+        //
         
         await dataSource.apply(snapshot, animatingDifferences: true)
     }

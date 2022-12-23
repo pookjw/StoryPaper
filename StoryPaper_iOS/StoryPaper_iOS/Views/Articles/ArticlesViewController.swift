@@ -38,10 +38,7 @@ final class ArticlesViewController: UIViewController {
     }
     
     private func configureCollectionView() {
-        var listConfiguration: UICollectionLayoutListConfiguration = .init(appearance: .insetGrouped)
-        listConfiguration.headerMode = .supplementary
-        
-        let collectionViewLayout: UICollectionViewCompositionalLayout = .list(using: listConfiguration)
+        let collectionViewLayout: ArticlesCollectionViewLayout = .init(delegate: self)
         let collectionView: UICollectionView = .init(frame: view.bounds, collectionViewLayout: collectionViewLayout)
         
         collectionView.delegate = self
@@ -65,11 +62,17 @@ final class ArticlesViewController: UIViewController {
     }
     
     private func createDataSource() -> UICollectionViewDiffableDataSource<ArticlesSectionModel, ArticlesItemModel> {
-        let cellRegistration: UICollectionView.CellRegistration<UICollectionViewListCell, ArticlesItemModel> = createCellRegistration()
-        let headerRegistration: UICollectionView.SupplementaryRegistration<UICollectionViewListCell> = createHeaderRegistration()
+        let largeCellRegistration: UICollectionView.CellRegistration<UICollectionViewCell, ArticlesItemModel> = .init { cell, indexPath, itemIdentifier in
+            let contentConfiguration: ArticlesLargeContentConfiguration = .init(itemModel: itemIdentifier)
+            cell.contentConfiguration = contentConfiguration
+        }
+        
+        let headerRegistration: UICollectionView.SupplementaryRegistration<UICollectionViewListCell> = .init(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, elementKind, indexPath in
+            
+        }
         
         let dataSource: UICollectionViewDiffableDataSource<ArticlesSectionModel, ArticlesItemModel> = .init(collectionView: collectionView) { collectionView, indexPath, itemIdentifier in
-            let cell: UICollectionViewCell = collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemIdentifier)
+            let cell: UICollectionViewCell = collectionView.dequeueConfiguredReusableCell(using: largeCellRegistration, for: indexPath, item: itemIdentifier)
             return cell
         }
         
@@ -83,26 +86,6 @@ final class ArticlesViewController: UIViewController {
         }
         
         return dataSource
-    }
-    
-    private func createCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, ArticlesItemModel> {
-        let cellRegistration: UICollectionView.CellRegistration<UICollectionViewListCell, ArticlesItemModel> = .init { cell, indexPath, itemIdentifier in
-            var contentConfiguration: UIListContentConfiguration = .cell()
-            contentConfiguration.text = itemIdentifier.title
-            contentConfiguration.secondaryText = itemIdentifier.description
-            cell.contentConfiguration = contentConfiguration
-            cell.accessories = [.disclosureIndicator()]
-        }
-        
-        return cellRegistration
-    }
-    
-    private func createHeaderRegistration() -> UICollectionView.SupplementaryRegistration<UICollectionViewListCell> {
-        let headerRegistration: UICollectionView.SupplementaryRegistration<UICollectionViewListCell> = .init(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, elementKind, indexPath in
-            
-        }
-        
-        return headerRegistration
     }
 }
 
@@ -122,5 +105,15 @@ extension ArticlesViewController: UICollectionViewDelegate {
                 self?.present(viewController, animated: true)
             }
         }
+    }
+}
+
+extension ArticlesViewController: ArticlesCollectionViewLayoutDelegate {
+    func articlesCollectionViewLayoutNumberOfItems(at sectionIndex: Int) -> Int {
+        return viewModel.numberOfItems[sectionIndex] ?? .zero
+    }
+    
+    func articlesCollectionViewLayoutSectionSizeLayout(at sectionIndex: Int) -> ArticlesCollectionViewLayout.SectionSizeLayout {
+        return .orthogonal
     }
 }
